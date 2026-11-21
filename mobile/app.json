@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Xplore Bandung",
+    "slug": "xplore-bandung",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "site.stei.bebas"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#DCEBFA",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "site.stei.bebas"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-secure-store",
+      "expo-font"
+    ],
+    "scheme": "xplorebandung",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#DCEBFA"
+    },
+    "extra": {
+      "apiUrl": "https://bebas.stei.site/api"
+    }
+  }
+}
