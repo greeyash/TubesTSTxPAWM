@@ -1,0 +1,1382 @@
+{
+ "_catatan": "Koordinat, jam, dan atribut adalah perkiraan [Menebak], verifikasi sebelum dipakai serius. closed_days: 0=Senin..6=Minggu. halal=false berarti ada menu/tenant non-halal. food_type/price_level/signature_menu hanya untuk kuliner. price_level: 1 <25rb, 2 25-50rb, 3 50-100rb, 4 >100rb per orang. parking.vehicle: mobil = muat mobil & motor, motor = hanya motor.",
+ "places": [
+  {
+   "slug": "farmhouse-susu-lembang",
+   "name": "Farmhouse Susu Lembang",
+   "category": "outdoor",
+   "description": "Taman bergaya Eropa dengan peternakan mini dan susu segar.",
+   "address": "Jl. Raya Lembang No.108, Gudangkahuripan, Lembang",
+   "lat": -6.8327,
+   "lon": 107.6055,
+   "open_time": "09:00",
+   "close_time": "18:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "10:00",
+      "12:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "09:30",
+      "15:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "luas",
+    "capacity": 400,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 90,
+   "ticket_price": 35000,
+   "corridor_slug": "setiabudi-lembang",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "floating-market-lembang",
+   "name": "Floating Market Lembang",
+   "category": "outdoor",
+   "description": "Pasar terapung di danau dengan wahana keluarga.",
+   "address": "Jl. Grand Hotel No.33E, Lembang",
+   "lat": -6.8195,
+   "lon": 107.6181,
+   "open_time": "09:00",
+   "close_time": "17:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "11:00",
+      "13:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "10:00",
+      "15:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "luas",
+    "capacity": 500,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 120,
+   "ticket_price": 30000,
+   "corridor_slug": "setiabudi-lembang",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "orchid-forest-cikole",
+   "name": "Orchid Forest Cikole",
+   "category": "outdoor",
+   "description": "Hutan pinus dengan koleksi anggrek dan jembatan gantung.",
+   "address": "Genteng, Cikole, Lembang",
+   "lat": -6.782,
+   "lon": 107.644,
+   "open_time": "08:00",
+   "close_time": "18:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "10:00",
+      "12:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "09:00",
+      "14:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 200,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 120,
+   "ticket_price": 50000,
+   "corridor_slug": "setiabudi-lembang",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "tebing-keraton",
+   "name": "Tebing Keraton",
+   "category": "outdoor",
+   "description": "Tebing dengan pemandangan matahari terbit di atas hutan Tahura.",
+   "address": "Ciburial, Cimenyan, Kab. Bandung",
+   "lat": -6.834,
+   "lon": 107.6635,
+   "open_time": "05:00",
+   "close_time": "17:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "05:30",
+      "07:30"
+     ]
+    ],
+    "weekend": [
+     [
+      "05:00",
+      "08:30"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 40,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 75,
+   "ticket_price": 20000,
+   "corridor_slug": "dago-dago-pakar",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "tahura-djuanda",
+   "name": "Tahura Ir. H. Djuanda",
+   "category": "outdoor",
+   "description": "Taman hutan raya dengan Goa Jepang, Goa Belanda, dan Curug Omas.",
+   "address": "Jl. Ir. H. Juanda No.99, Dago Pakar",
+   "lat": -6.8566,
+   "lon": 107.6302,
+   "open_time": "07:00",
+   "close_time": "17:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "08:00",
+      "10:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "07:00",
+      "11:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 250,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 150,
+   "ticket_price": 25000,
+   "corridor_slug": "dago-dago-pakar",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "babakan-siliwangi",
+   "name": "Hutan Kota Babakan Siliwangi",
+   "category": "outdoor",
+   "description": "Hutan kota dengan forest walk di atas pepohonan.",
+   "address": "Jl. Babakan Siliwangi, Lebak Siliwangi, Coblong",
+   "lat": -6.885,
+   "lon": 107.609,
+   "open_time": "06:00",
+   "close_time": "18:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "06:30",
+      "08:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "06:00",
+      "09:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 30,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 45,
+   "ticket_price": 0,
+   "corridor_slug": null,
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "kawah-putih",
+   "name": "Kawah Putih",
+   "category": "outdoor",
+   "description": "Danau kawah vulkanik berwarna putih kehijauan.",
+   "address": "Sugihmukti, Pasirjambu, Ciwidey",
+   "lat": -7.1662,
+   "lon": 107.4021,
+   "open_time": "07:00",
+   "close_time": "17:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "09:00",
+      "11:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "08:00",
+      "13:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "luas",
+    "capacity": 300,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 120,
+   "ticket_price": 30000,
+   "corridor_slug": "soreang-ciwidey",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "situ-patenggang",
+   "name": "Situ Patenggang",
+   "category": "outdoor",
+   "description": "Danau di tengah kebun teh dengan perahu dan Batu Cinta.",
+   "address": "Patengan, Rancabali, Ciwidey",
+   "lat": -7.1667,
+   "lon": 107.357,
+   "open_time": "07:00",
+   "close_time": "17:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "10:00",
+      "12:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "09:00",
+      "14:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "luas",
+    "capacity": 250,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 90,
+   "ticket_price": 25000,
+   "corridor_slug": "soreang-ciwidey",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "kebun-teh-rancabali",
+   "name": "Kebun Teh Rancabali",
+   "category": "outdoor",
+   "description": "Hamparan kebun teh di jalur Ciwidey.",
+   "address": "Rancabali, Kab. Bandung",
+   "lat": -7.15,
+   "lon": 107.38,
+   "open_time": "06:00",
+   "close_time": "17:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "08:00",
+      "10:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "07:00",
+      "11:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 100,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 10000,
+   "corridor_slug": "soreang-ciwidey",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "museum-geologi",
+   "name": "Museum Geologi",
+   "category": "indoor",
+   "description": "Koleksi fosil, batuan, dan replika T-Rex.",
+   "address": "Jl. Diponegoro No.57, Cihaur Geulis",
+   "lat": -6.9008,
+   "lon": 107.6213,
+   "open_time": "08:00",
+   "close_time": "16:00",
+   "closed_days": [
+    4
+   ],
+   "peak_hours": {
+    "weekday": [
+     [
+      "09:00",
+      "11:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "10:00",
+      "13:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 80,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 90,
+   "ticket_price": 3000,
+   "corridor_slug": "dipati-ukur",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "museum-kaa",
+   "name": "Museum Konferensi Asia Afrika",
+   "category": "indoor",
+   "description": "Museum sejarah Konferensi Asia Afrika 1955 di Gedung Merdeka.",
+   "address": "Jl. Asia Afrika No.65, Braga",
+   "lat": -6.921,
+   "lon": 107.6097,
+   "open_time": "09:00",
+   "close_time": "15:00",
+   "closed_days": [
+    0
+   ],
+   "peak_hours": {
+    "weekday": [
+     [
+      "10:00",
+      "12:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "09:30",
+      "13:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 30,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 0,
+   "corridor_slug": "asia-afrika-braga",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "trans-studio-bandung",
+   "name": "Trans Studio Bandung",
+   "category": "indoor",
+   "description": "Taman hiburan indoor dengan banyak wahana.",
+   "address": "Jl. Gatot Subroto No.289, Cibangkong",
+   "lat": -6.9256,
+   "lon": 107.6366,
+   "open_time": "10:00",
+   "close_time": "19:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "13:00",
+      "16:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "11:00",
+      "17:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "luas",
+    "capacity": 1500,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 240,
+   "ticket_price": 250000,
+   "corridor_slug": null,
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "museum-sri-baduga",
+   "name": "Museum Sri Baduga",
+   "category": "indoor",
+   "description": "Museum budaya dan sejarah Jawa Barat.",
+   "address": "Jl. BKR No.185, Pelindung Hewan",
+   "lat": -6.9375,
+   "lon": 107.604,
+   "open_time": "08:00",
+   "close_time": "16:00",
+   "closed_days": [
+    0
+   ],
+   "peak_hours": {
+    "weekday": [
+     [
+      "09:00",
+      "11:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "10:00",
+      "13:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 60,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 5000,
+   "corridor_slug": null,
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "saung-angklung-udjo",
+   "name": "Saung Angklung Udjo",
+   "category": "indoor",
+   "description": "Pertunjukan angklung dan seni Sunda, pentas utama pukul 15.30.",
+   "address": "Jl. Padasuka No.118, Pasirlayung",
+   "lat": -6.8976,
+   "lon": 107.655,
+   "open_time": "09:00",
+   "close_time": "17:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "15:00",
+      "17:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "13:00",
+      "17:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 120,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 120,
+   "ticket_price": 60000,
+   "corridor_slug": null,
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "museum-pos-indonesia",
+   "name": "Museum Pos Indonesia",
+   "category": "indoor",
+   "description": "Sejarah pos dan koleksi perangko, di sayap Gedung Sate.",
+   "address": "Jl. Cilaki No.73, Citarum",
+   "lat": -6.902,
+   "lon": 107.62,
+   "open_time": "09:00",
+   "close_time": "15:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "10:00",
+      "12:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "10:00",
+      "12:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 20,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 45,
+   "ticket_price": 0,
+   "corridor_slug": "dipati-ukur",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "gedung-sate",
+   "name": "Gedung Sate",
+   "category": "landmark",
+   "description": "Ikon Bandung, gedung pemerintahan dengan museum dan menara pandang.",
+   "address": "Jl. Diponegoro No.22, Citarum",
+   "lat": -6.9025,
+   "lon": 107.6188,
+   "open_time": "09:00",
+   "close_time": "16:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "10:00",
+      "12:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "09:00",
+      "12:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 100,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 5000,
+   "corridor_slug": "dipati-ukur",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "alun-alun-bandung",
+   "name": "Alun-alun Bandung & Masjid Raya",
+   "category": "landmark",
+   "description": "Alun-alun berumput sintetis dan menara Masjid Raya Bandung.",
+   "address": "Jl. Asia Afrika, Balonggede, Regol",
+   "lat": -6.9218,
+   "lon": 107.607,
+   "open_time": "00:00",
+   "close_time": "23:59",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "16:00",
+      "19:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "15:00",
+      "21:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 150,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 0,
+   "corridor_slug": "asia-afrika-braga",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "jalan-braga",
+   "name": "Jalan Braga",
+   "category": "landmark",
+   "description": "Jalan bersejarah dengan bangunan art deco, kafe, dan galeri.",
+   "address": "Jl. Braga, Sumur Bandung",
+   "lat": -6.9175,
+   "lon": 107.6095,
+   "open_time": "00:00",
+   "close_time": "23:59",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "17:00",
+      "21:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "16:00",
+      "23:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 80,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": false,
+   "avg_visit_minutes": 90,
+   "ticket_price": 0,
+   "corridor_slug": "asia-afrika-braga",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "observatorium-bosscha",
+   "name": "Observatorium Bosscha",
+   "category": "landmark",
+   "description": "Observatorium astronomi tertua di Indonesia. Kunjungan perlu reservasi.",
+   "address": "Jl. Peneropongan Bintang, Gudangkahuripan, Lembang",
+   "lat": -6.825,
+   "lon": 107.616,
+   "open_time": "09:00",
+   "close_time": "14:00",
+   "closed_days": [
+    0,
+    6
+   ],
+   "peak_hours": {
+    "weekday": [
+     [
+      "09:00",
+      "11:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "09:00",
+      "12:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 60,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 90,
+   "ticket_price": 25000,
+   "corridor_slug": "setiabudi-lembang",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "lapangan-gasibu",
+   "name": "Lapangan Gasibu",
+   "category": "landmark",
+   "description": "Lapangan publik di depan Gedung Sate, ramai olahraga pagi akhir pekan.",
+   "address": "Jl. Diponegoro, Lebakgede",
+   "lat": -6.9,
+   "lon": 107.6185,
+   "open_time": "05:00",
+   "close_time": "22:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "16:00",
+      "18:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "05:30",
+      "10:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 80,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 45,
+   "ticket_price": 0,
+   "corridor_slug": "dipati-ukur",
+   "food_type": null,
+   "price_level": null,
+   "signature_menu": []
+  },
+  {
+   "slug": "pasar-cihapit",
+   "name": "Pasar Cihapit",
+   "category": "kuliner",
+   "description": "Pasar tradisional dengan deretan warung legendaris.",
+   "address": "Jl. Cihapit, Cihapit, Bandung Wetan",
+   "lat": -6.9055,
+   "lon": 107.6255,
+   "open_time": "07:00",
+   "close_time": "16:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "11:30",
+      "13:30"
+     ]
+    ],
+    "weekend": [
+     [
+      "10:00",
+      "14:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 30,
+    "vehicle": "motor"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 0,
+   "corridor_slug": "burangrang-cihapit",
+   "food_type": "makanan_berat",
+   "price_level": 1,
+   "signature_menu": [
+    "nasi rames",
+    "lotek",
+    "kupat tahu"
+   ]
+  },
+  {
+   "slug": "kuliner-burangrang",
+   "name": "Sentra Kuliner Burangrang",
+   "category": "kuliner",
+   "description": "Deretan rumah makan dan kafe di sepanjang Burangrang.",
+   "address": "Jl. Burangrang, Malabar, Lengkong",
+   "lat": -6.927,
+   "lon": 107.6262,
+   "open_time": "10:00",
+   "close_time": "22:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "11:30",
+      "13:30"
+     ],
+     [
+      "18:00",
+      "20:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "11:00",
+      "14:00"
+     ],
+     [
+      "17:30",
+      "21:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 40,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 0,
+   "corridor_slug": "burangrang-cihapit",
+   "food_type": "makanan_berat",
+   "price_level": 2,
+   "signature_menu": [
+    "mie kocok",
+    "nasi timbel",
+    "bakso"
+   ]
+  },
+  {
+   "slug": "jajanan-dipati-ukur",
+   "name": "Jajanan Dipati Ukur",
+   "category": "kuliner",
+   "description": "Jajanan kaki lima dan kafe mahasiswa dekat kampus.",
+   "address": "Jl. Dipati Ukur, Lebakgede, Coblong",
+   "lat": -6.89,
+   "lon": 107.6165,
+   "open_time": "10:00",
+   "close_time": "23:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "11:30",
+      "13:30"
+     ],
+     [
+      "18:00",
+      "21:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "18:00",
+      "22:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 50,
+    "vehicle": "motor"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 45,
+   "ticket_price": 0,
+   "corridor_slug": "dipati-ukur",
+   "food_type": "jajanan",
+   "price_level": 1,
+   "signature_menu": [
+    "cilok",
+    "seblak",
+    "batagor"
+   ]
+  },
+  {
+   "slug": "kampung-daun",
+   "name": "Kampung Daun Culture Gallery & Cafe",
+   "category": "kuliner",
+   "description": "Restoran bernuansa kampung di lembah dengan saung dan air terjun kecil.",
+   "address": "Jl. Sersan Bajuri Km 4.7, Parongpong",
+   "lat": -6.8325,
+   "lon": 107.5905,
+   "open_time": "11:00",
+   "close_time": "22:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "18:00",
+      "20:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "12:00",
+      "14:00"
+     ],
+     [
+      "17:30",
+      "21:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "luas",
+    "capacity": 200,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 120,
+   "ticket_price": 0,
+   "corridor_slug": "setiabudi-lembang",
+   "food_type": "makanan_berat",
+   "price_level": 4,
+   "signature_menu": [
+    "nasi liwet",
+    "gurame bakar",
+    "sop buntut"
+   ]
+  },
+  {
+   "slug": "braga-culinary-night",
+   "name": "Braga Culinary Night",
+   "category": "kuliner",
+   "description": "Pasar kuliner malam di Braga, menu campuran (tidak semua halal).",
+   "address": "Jl. Braga, Sumur Bandung",
+   "lat": -6.916,
+   "lon": 107.6093,
+   "open_time": "17:00",
+   "close_time": "23:59",
+   "closed_days": [
+    0,
+    1,
+    2,
+    3
+   ],
+   "peak_hours": {
+    "weekday": [
+     [
+      "18:30",
+      "21:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "18:00",
+      "23:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 60,
+    "vehicle": "motor"
+   },
+   "rain_friendly": false,
+   "halal": false,
+   "avg_visit_minutes": 90,
+   "ticket_price": 0,
+   "corridor_slug": "asia-afrika-braga",
+   "food_type": "sentra_kuliner",
+   "price_level": 2,
+   "signature_menu": [
+    "sate",
+    "kopi",
+    "aneka jajanan"
+   ]
+  },
+  {
+   "slug": "paskal-food-market",
+   "name": "Paskal Food Market",
+   "category": "kuliner",
+   "description": "Pujasera besar semi-terbuka, ada tenant non-halal.",
+   "address": "Paskal Hyper Square, Jl. Pasirkaliki No.25-27",
+   "lat": -6.915,
+   "lon": 107.5935,
+   "open_time": "16:00",
+   "close_time": "23:59",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "18:00",
+      "21:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "17:00",
+      "22:30"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "luas",
+    "capacity": 600,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": false,
+   "avg_visit_minutes": 90,
+   "ticket_price": 0,
+   "corridor_slug": null,
+   "food_type": "sentra_kuliner",
+   "price_level": 2,
+   "signature_menu": [
+    "dimsum",
+    "nasi goreng",
+    "es campur"
+   ]
+  },
+  {
+   "slug": "sentra-kuliner-lembang",
+   "name": "Sentra Kuliner Jalan Raya Lembang",
+   "category": "kuliner",
+   "description": "Deretan rumah makan Sunda, sate kelinci, dan tahu Lembang.",
+   "address": "Jl. Raya Lembang, Lembang",
+   "lat": -6.816,
+   "lon": 107.6175,
+   "open_time": "08:00",
+   "close_time": "21:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "11:30",
+      "13:30"
+     ]
+    ],
+    "weekend": [
+     [
+      "11:00",
+      "14:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 80,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 0,
+   "corridor_slug": "setiabudi-lembang",
+   "food_type": "makanan_berat",
+   "price_level": 2,
+   "signature_menu": [
+    "sate kelinci",
+    "tahu susu",
+    "nasi timbel"
+   ]
+  },
+  {
+   "slug": "oleh-oleh-lembang",
+   "name": "Pusat Oleh-oleh Susu & Tahu Lembang",
+   "category": "kuliner",
+   "description": "Toko oleh-oleh susu murni, tahu, dan kue.",
+   "address": "Jl. Raya Lembang, Jayagiri",
+   "lat": -6.8235,
+   "lon": 107.612,
+   "open_time": "08:00",
+   "close_time": "20:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "15:00",
+      "17:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "14:00",
+      "18:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 60,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 30,
+   "ticket_price": 0,
+   "corridor_slug": "setiabudi-lembang",
+   "food_type": "oleh_oleh",
+   "price_level": 1,
+   "signature_menu": [
+    "susu murni",
+    "tahu susu",
+    "colenak"
+   ]
+  },
+  {
+   "slug": "kuliner-setiabudi",
+   "name": "Kafe & Kuliner Setiabudi",
+   "category": "kuliner",
+   "description": "Kafe dan rumah makan di sepanjang Setiabudi, dekat UPI.",
+   "address": "Jl. Dr. Setiabudi, Hegarmanah",
+   "lat": -6.865,
+   "lon": 107.596,
+   "open_time": "10:00",
+   "close_time": "22:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "11:30",
+      "13:30"
+     ]
+    ],
+    "weekend": [
+     [
+      "12:00",
+      "14:00"
+     ],
+     [
+      "18:00",
+      "20:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 40,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 0,
+   "corridor_slug": "setiabudi-lembang",
+   "food_type": "kafe",
+   "price_level": 3,
+   "signature_menu": [
+    "kopi susu",
+    "nasi bakar",
+    "roti bakar"
+   ]
+  },
+  {
+   "slug": "jajanan-simpang-dago",
+   "name": "Jajanan Simpang Dago",
+   "category": "kuliner",
+   "description": "Jajanan kaki lima, ramai saat Car Free Day Minggu pagi.",
+   "address": "Simpang Dago, Coblong",
+   "lat": -6.8855,
+   "lon": 107.6135,
+   "open_time": "07:00",
+   "close_time": "23:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "16:00",
+      "19:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "06:00",
+      "10:00"
+     ],
+     [
+      "16:00",
+      "20:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 20,
+    "vehicle": "motor"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 30,
+   "ticket_price": 0,
+   "corridor_slug": "dago-dago-pakar",
+   "food_type": "jajanan",
+   "price_level": 1,
+   "signature_menu": [
+    "surabi",
+    "cuanki",
+    "cireng"
+   ]
+  },
+  {
+   "slug": "sentra-kuliner-sudirman",
+   "name": "Sentra Kuliner Jalan Sudirman",
+   "category": "kuliner",
+   "description": "Kuliner malam peranakan dan Sunda; sebagian menu tidak halal.",
+   "address": "Jl. Jend. Sudirman, Cicendo",
+   "lat": -6.918,
+   "lon": 107.596,
+   "open_time": "16:00",
+   "close_time": "23:59",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "18:00",
+      "21:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "17:30",
+      "22:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "terbatas",
+    "capacity": 30,
+    "vehicle": "motor"
+   },
+   "rain_friendly": false,
+   "halal": false,
+   "avg_visit_minutes": 60,
+   "ticket_price": 0,
+   "corridor_slug": null,
+   "food_type": "sentra_kuliner",
+   "price_level": 2,
+   "signature_menu": [
+    "bakmi",
+    "nasi campur",
+    "kue balok"
+   ]
+  },
+  {
+   "slug": "kuliner-ciwidey",
+   "name": "Rumah Makan Sunda Ciwidey",
+   "category": "kuliner",
+   "description": "Rumah makan Sunda di jalur Ciwidey, dekat kebun stroberi.",
+   "address": "Jl. Raya Ciwidey",
+   "lat": -7.096,
+   "lon": 107.443,
+   "open_time": "08:00",
+   "close_time": "20:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "11:30",
+      "13:30"
+     ]
+    ],
+    "weekend": [
+     [
+      "11:00",
+      "14:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "luas",
+    "capacity": 100,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": true,
+   "halal": true,
+   "avg_visit_minutes": 60,
+   "ticket_price": 0,
+   "corridor_slug": "soreang-ciwidey",
+   "food_type": "makanan_berat",
+   "price_level": 2,
+   "signature_menu": [
+    "nasi liwet",
+    "ikan bakar",
+    "sayur asem"
+   ]
+  },
+  {
+   "slug": "oleh-oleh-ciwidey",
+   "name": "Kios Stroberi & Kalua Ciwidey",
+   "category": "kuliner",
+   "description": "Kios stroberi segar, kalua jeruk, dan jajanan khas.",
+   "address": "Jl. Raya Ciwidey-Rancabali",
+   "lat": -7.105,
+   "lon": 107.432,
+   "open_time": "07:00",
+   "close_time": "18:00",
+   "closed_days": [],
+   "peak_hours": {
+    "weekday": [
+     [
+      "14:00",
+      "16:00"
+     ]
+    ],
+    "weekend": [
+     [
+      "13:00",
+      "17:00"
+     ]
+    ]
+   },
+   "parking": {
+    "type": "sedang",
+    "capacity": 40,
+    "vehicle": "mobil"
+   },
+   "rain_friendly": false,
+   "halal": true,
+   "avg_visit_minutes": 30,
+   "ticket_price": 0,
+   "corridor_slug": "soreang-ciwidey",
+   "food_type": "oleh_oleh",
+   "price_level": 1,
+   "signature_menu": [
+    "stroberi segar",
+    "kalua jeruk",
+    "bandrek"
+   ]
+  }
+ ]
+}
