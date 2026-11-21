@@ -1,0 +1,32 @@
+x-log: &log
+  logging: {driver: json-file, options: {max-size: "10m", max-file: "3"}}
+services:
+  core-service:
+    build: ./core-service
+    restart: unless-stopped
+    env_file: .env
+    volumes: ["./data:/app/data"]
+    mem_limit: 256m
+    cpus: 0.5
+    <<: *log
+  gateway:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    ports: ["127.0.0.1:8080:80"]
+    volumes: ["./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro"]
+    depends_on: [core-service]
+    mem_limit: 64m
+    cpus: 0.25
+    <<: *log
+  # Opsi B: cloudflared sebagai kontainer (format di dokumen tugas).
+  # Aktifkan dengan COMPOSE_PROFILES=tunnel di .env. Public Hostname di Cloudflare -> http://gateway:80
+  # Lewati kalau cloudflared sudah terpasang sebagai service sistem di STB (opsi A, hostname -> localhost:8080).
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN:-isi-di-env}
+    depends_on: [gateway]
+    profiles: ["tunnel"]
+    mem_limit: 64m
+    cpus: 0.25
+    <<: *log
