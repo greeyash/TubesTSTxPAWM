@@ -63,6 +63,8 @@ Kalau OSRM tidak bisa dihubungi, prediksi memakai jarak garis lurus × 1,3. Kala
 | GET | `/api/places/{id}/crowd-reports` | pengelola tempat itu/admin | Riwayat laporan |
 | PATCH | `/api/crowd-reports/{id}` | pengelola tempat itu/admin | Validasi/tolak manual |
 | GET | `/api/places/{id}/visit-forecast?date=` | - | Prediksi kepadatan kunjungan per jam |
+| GET | `/api/crowd?place_ids=1,2,3` · `/api/visit-forecast?place_ids=&date=` | - | Versi batch (maks 50 / 20 tempat) |
+| GET | `/api/feed?since=` | - | Feed event publik (format Jelajah Nusantara) |
 | GET | `/api/places/{id}/dashboard?date=` | pengelola tempat itu/admin | Perkiraan kedatangan dari itinerary + ringkasan laporan |
 | GET | `/api/corridors`, `/api/corridors/{slug}/factors?date=` | - | Koridor dan faktor jam |
 | GET | `/api/predict/travel-time` | JWT | Waktu tempuh + tingkat keyakinan |
@@ -71,7 +73,9 @@ Kalau OSRM tidak bisa dihubungi, prediksi memakai jarak garis lurus × 1,3. Kala
 | GET, PATCH, DELETE | `/api/plans/{id}` | pemilik/admin | Lihat (jadwal dihitung ulang), ubah, hapus |
 | POST | `/api/plans/{id}/reorder` | pemilik/admin | Susun ulang (`optimize`/`manual`, `from_time`, `apply_alternatives`) |
 | GET | `/api/eat-now` | JWT | Mode "Mau makan sekarang" |
-| GET | `/api/public/places`, `/places/{id}`, `/places/{id}/crowd`, `/places/{id}/visit-forecast`, `/corridors`, `/predict/travel-time`, `/predict/departure-window`, `/eat-now`, `/events` | X-API-Key | Untuk kelompok lain |
+| GET | `/api/public/places` (paginasi), `/places/{id}`, `/places/{id}/crowd`, `/places/{id}/visit-forecast`, `/crowd?ids=`, `/visit-forecast?ids=`, `/corridors`, `/predict/travel-time`, `/predict/departure-window`, `/eat-now`, `/feed` | X-API-Key | Untuk kelompok lain |
+
+Semua error berbentuk `{"error": "KODE_ERROR", "message": "..."}`. Kodenya: `BAD_REQUEST`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `VALIDATION_ERROR` (ditambah `details` per field), `RATE_LIMITED`.
 
 Titik asal/tujuan prediksi ditulis sebagai `from_place_id` / `to_place_id`, atau `from_lat`+`from_lon` / `to_lat`+`to_lon`. Waktu tanpa zona dianggap WIB.
 
@@ -178,14 +182,45 @@ API key hanya tampil sekali saat dibuat. Server hanya menyimpan hash SHA-256-nya
 | Dokumentasi | Swagger `https://bebas.stei.site/docs`, kontrak `docs/openapi.json` di repo |
 | Auth | Header `X-API-Key` untuk semua `/api/public/*`. Satu kunci per kelompok, bisa dicabut kalau disalahgunakan |
 | Cara minta akses | Hubungi admin Bebas (kontak di entri API Registry), sebutkan nama kelompok. Kalian akan menerima API key dan satu akun uji wisatawan |
-| Endpoint yang ditawarkan | `places`, `places/{id}`, `places/{id}/crowd`, `places/{id}/visit-forecast`, `corridors`, `predict/travel-time`, `predict/departure-window`, `eat-now`, `events` |
+| Endpoint yang ditawarkan | `places` (paginasi `?page&limit` → `{"data","page","limit","total"}`), `places/{id}`, `places/{id}/crowd`, `places/{id}/visit-forecast`, batch `crowd?ids=` dan `visit-forecast?ids=`, `corridors`, `predict/travel-time`, `predict/departure-window`, `eat-now`, `feed?since=` |
+| Tanpa API key | Data non-pribadi juga terbuka tanpa kunci (dibatasi 60/menit per IP): `/api/places`, `/api/places/{id}/crowd`, `/api/crowd?place_ids=`, `/api/visit-forecast?place_ids=`, `/api/corridors`, `/api/feed`. Aplikasi mobile bisa memanggilnya langsung tanpa menyimpan API key di APK |
 | Format | JSON, waktu ISO 8601 WIB (`+07:00`), koordinat desimal WGS84, jarak dalam km, durasi dalam menit |
 | Batas pemanggilan | 120 panggilan/menit per API key dan 60/menit per IP (burst 20) di gateway. Kalau terlampaui → HTTP 429 dengan header `Retry-After` |
-| Kode error | 401 kunci salah/dicabut, 404 data tidak ada, 422 parameter salah, 429 terlalu sering |
+| Kode error | `{"error": "KODE", "message": "..."}`: 401 `UNAUTHORIZED`, 404 `NOT_FOUND`, 422 `VALIDATION_ERROR`, 429 `RATE_LIMITED` |
 | Saran untuk pemakai | Pasang timeout ±5 detik dan cache hasil ±5 menit. Data tempat dan koridor jarang berubah |
 | Laporan bug | GitHub Issue di repo ini |
 
 Daftar kelompok yang memakai API Bebas, dan API kelompok lain yang dipakai Bebas, akan dicatat di sini saat Tugas 3.
+
+## Integrasi dengan Jelajah Nusantara
+
+Jelajah Nusantara (JN) adalah ekosistem 4 kelompok bertema Tourism: K1 Destination (`jn-destinasi`), K2 Culture & Story (`jn-budaya`), K3 Itinerary & Route (`jn-rute`), dan K4 Ulasan & Reputasi (`jn-ulasan`). Core Bebas tidak memanggil API mereka. Pemanggilan dilakukan di layanan integrasi (Tugas 3) atau di aplikasi, sesuai aturan tugas dan aturan JN.
+
+**Yang disiapkan di core Bebas**
+
+Destinasi K1 bisa masuk itinerary Bebas. Item rencana menerima `external`, yaitu snapshot destinasi milik kelompok lain, sebagai pengganti `place_id`:
+
+```json
+{"external": {"destination_id": "dst_12", "name": "Curug Citambur", "lat": -7.2241, "lon": 107.3047,
+              "opening_hours": "07:00-16:00", "category": "curug", "captured_at": "2026-11-20T08:00:00Z"}}
+```
+
+- `app/planning/external.py` adalah anti-corruption layer-nya. Modul ini menerjemahkan kategori K1 ke kategori Bebas (curug → outdoor, situs sejarah/desa adat → landmark, museum → indoor, kuliner lokal → kuliner), mem-parse jam buka, dan memakai durasi default per kategori. Hasilnya, destinasi K1 dijadwalkan dengan prediksi macet, cuaca, dan jam buka yang sama seperti tempat Bebas.
+- Bebas hanya menyimpan ID berprefiks (`dst_`) dan snapshot. Snapshot yang berumur lebih dari 7 hari diberi peringatan "perlu disegarkan".
+- Konvensi kontrak JN: endpoint batch (`?ids=`), paginasi `{"data","page","total"}`, error `{"error","message"}`, feed `{"events":[{"seq","type","occurred_at","data"}],"next_since"}`, dan data non-pribadi yang terbuka tanpa API key.
+- Perbedaan yang disengaja: waktu ditulis dalam ISO 8601 dengan zona WIB (`+07:00`), bukan UTC. Batas per API key 120/menit (JN memakai 60).
+
+**Rencana pemakaian di Tugas 3 (layanan integrasi Bebas, di luar STB)**
+
+| Penyedia | Endpoint | Dipakai untuk |
+|---|---|---|
+| K1 Destination | `GET /destinations/nearby`, `/batch`, `/{id}` | Memilih destinasi tersembunyi di sekitar Bandung, membuat snapshot, lalu dijadwalkan oleh core Bebas |
+| K4 Ulasan & Reputasi | `GET /ratings/summary?target_type=destination&ids=` | Mengurutkan destinasi dan alternatif berdasarkan rating terverifikasi |
+| K2 Culture & Story (opsional) | `GET /stories/summaries?destination_ids=`, `GET /events?from&to` | Cuplikan kisah per stop, peringatan acara budaya di tanggal perjalanan |
+
+Ketahanan: timeout 5 detik, retry 1×, katalog K1 di-cache utuh, dan rating di-cache 5 menit. Kalau API mereka mati, itinerary tetap dibuat dari katalog Bebas dengan pesan "layanan X sedang tidak tersedia".
+
+**Yang ditawarkan Bebas ke JN**: prediksi waktu tempuh per jam dan jendela berangkat untuk koridor Bandung (cocok untuk K3), serta status keramaian dan prediksi kepadatan per tempat (cocok untuk detail destinasi K1).
 
 ## Checklist Tugas 2
 
