@@ -5,14 +5,17 @@ from contextlib import asynccontextmanager
 import sqlite3
 from typing import List, Optional
 
-from fastapi import Depends, FastAPI, Query
+from fastapi import Depends, FastAPI, Query, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .common import now_wib
 from .config import VERSION, settings
 from .crowd.router import router as crowd_router
 from .db import connect, get_db, init_db
-from .events import EVENT_TYPES, list_events
+from .events import EVENT_TYPES, feed, list_events
 from .identity.deps import require_roles
 from .identity import service as identity
 from .identity.router import router as identity_router
@@ -30,7 +33,11 @@ Core service kelompok **Bebas** (K02, tema Tourism).
 **Autentikasi**
 * Pengguna aplikasi: `POST /api/auth/login` lalu kirim `Authorization: Bearer <token>`.
   Peran: `wisatawan`, `pengelola`, `admin`.
-* Kelompok lain: endpoint `/api/public/*` dengan header `X-API-Key: <kunci>`. Minta kunci ke admin Bebas.
+* Kelompok lain (server ke server): endpoint `/api/public/*` dengan header `X-API-Key: <kunci>`.
+* Data non-pribadi (katalog, keramaian, prediksi kepadatan, feed) juga terbuka tanpa kunci, dibatasi rate limit,
+  supaya aplikasi kelompok lain tidak perlu menyimpan API key di APK.
+
+**Format error**: `{"error": "KODE_ERROR", "message": "..."}` (400/401/403/404/409/422/429/503).
 
 **Bounded context** (nama di makalah → folder):
 Identitas & Akses → `identity`, Katalog Tempat → `places`, Keramaian & Antrean → `crowd`,
@@ -63,6 +70,26 @@ app.add_middleware(
 )
 
 
+ERROR_CODES = {400: "BAD_REQUEST", 401: "UNAUTHORIZED", 403: "FORBIDDEN", 404: "NOT_FOUND",
+               405: "METHOD_NOT_ALLOWED", 409: "CONFLICT", 422: "VALIDATION_ERROR", 429: "RATE_LIMITED",
+               500: "INTERNAL_ERROR", 503: "SERVICE_UNAVAILABLE"}
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_error(_: Request, exc: StarletteHTTPException):
+    return JSONResponse({"error": ERROR_CODES.get(exc.status_code, f"HTTP_{exc.status_code}"),
+                         "message": str(exc.detail)},
+                        status_code=exc.status_code, headers=getattr(exc, "headers", None))
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(_: Request, exc: RequestValidationError):
+    details = [{"field": ".".join(str(x) for x in e["loc"] if x not in ("body", "query", "path")),
+                "message": e["msg"]} for e in exc.errors()]
+    message = "; ".join(f"{d['field'] or 'request'}: {d['message']}" for d in details[:3])
+    return JSONResponse({"error": "VALIDATION_ERROR", "message": message, "details": details}, status_code=422)
+
+
 @app.get("/api/health", tags=["Health"], summary="Cek service hidup")
 def health():
     db_ok = True
@@ -80,6 +107,12 @@ def health():
         "database": "ok" if db_ok else "error",
         "external_apis": settings.external_apis,
     }
+
+
+@app.get("/api/feed", tags=["Events"], summary="Feed event publik (format bersama Jelajah Nusantara)")
+def public_feed(since: int = Query(0, ge=0, description="seq terakhir yang sudah diproses"),
+                limit: int = Query(50, ge=1, le=200), db: sqlite3.Connection = Depends(get_db)):
+    return feed(db, since, limit)
 
 
 @app.get("/api/events", tags=["Admin"], summary="Semua domain event (outbox), untuk konsumen internal")

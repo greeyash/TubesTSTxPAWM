@@ -7,24 +7,33 @@ from datetime import date, datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
 
 from ..common import HHMM_PATTERN
-from ..crowd.schemas import CrowdStatusOut
+from ..crowd import router as crowd_r
+from ..crowd.schemas import CrowdBatchOut, CrowdStatusOut
 from ..crowd.service import crowd_status
 from ..db import get_db
 from ..identity.deps import require_api_key
 from ..places import service as places
-from ..events import list_events
+from ..events import feed
 from ..places.schemas import Category, FoodType, PlaceOut
 from ..planning import router as plan
-from ..planning.schemas import EatNowOut, VisitForecast
+from ..planning.schemas import EatNowOut, VisitForecast, VisitForecastBatch
 from ..prediction import router as pred
 from ..prediction.schemas import CorridorOut, DepartureWindowOut, TravelPrediction
+
+class PlacePage(BaseModel):
+    data: List[PlaceOut]
+    page: int
+    limit: int
+    total: int
+
 
 router = APIRouter(prefix="/api/public", tags=["Public (X-API-Key)"], dependencies=[Depends(require_api_key)])
 
 
-@router.get("/places", response_model=List[PlaceOut], summary="Daftar tempat")
+@router.get("/places", response_model=PlacePage, summary="Daftar tempat (paginasi ?page&limit)")
 def list_places(
     category: Optional[Category] = None,
     rain_friendly: Optional[bool] = None,
@@ -34,10 +43,14 @@ def list_places(
     price_max: Optional[int] = Query(None, ge=1, le=4),
     open_late: Optional[bool] = None,
     open_now: Optional[bool] = None,
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
     db: sqlite3.Connection = Depends(get_db),
 ):
-    return places.list_places(db, category, rain_friendly, halal, q, None, None, food_type, price_max,
-                              open_late, open_now)
+    items = places.list_places(db, category, rain_friendly, halal, q, None, None, food_type, price_max,
+                               open_late, open_now)
+    start = (page - 1) * limit
+    return {"data": items[start:start + limit], "page": page, "limit": limit, "total": len(items)}
 
 
 @router.get("/places/{place_id}", response_model=PlaceOut, summary="Detail tempat")
@@ -83,6 +96,18 @@ def departure_window(
     return pred.window(pts, date, earliest, latest, step, arrive_by, db)
 
 
+@router.get("/crowd", response_model=CrowdBatchOut, summary="Status keramaian banyak tempat (?ids=1,2,3)")
+def crowd_many(ids: str = Query(..., description="maks 50"), db: sqlite3.Connection = Depends(get_db)):
+    return crowd_r.crowd_batch(ids, db)
+
+
+@router.get("/visit-forecast", response_model=VisitForecastBatch,
+            summary="Prediksi kepadatan banyak tempat (?ids=1,2,3&date=)")
+def visit_forecast_many(ids: str = Query(..., description="maks 20"), date: Optional[date] = Query(None),
+                        db: sqlite3.Connection = Depends(get_db)):
+    return plan.forecast_batch(ids, date, db)
+
+
 @router.get("/places/{place_id}/visit-forecast", response_model=VisitForecast,
             summary="Prediksi kepadatan kunjungan per jam (Open Host Service)")
 def visit_forecast(place_id: int, date: Optional[date] = Query(None), db: sqlite3.Connection = Depends(get_db)):
@@ -107,9 +132,7 @@ def eat_now(
                               include_long_queue, limit, db)
 
 
-@router.get("/events", summary="Domain event (Published Language): TempatDiperbarui, StatusAntreanBerubah")
-def events(after: int = Query(0, ge=0, description="ambil event dengan id > after"),
-           limit: int = Query(100, ge=1, le=500), db: sqlite3.Connection = Depends(get_db)):
-    # RencanaBerubah memuat user_id, jadi tidak dibuka ke kelompok lain
-    return list_events(db, after, ["TempatDiperbarui", "StatusAntreanBerubah"], limit)
-
+@router.get("/feed", summary="Feed event (format bersama): TempatDiperbarui, StatusAntreanBerubah")
+def events_feed(since: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=200),
+                db: sqlite3.Connection = Depends(get_db)):
+    return feed(db, since, limit)
