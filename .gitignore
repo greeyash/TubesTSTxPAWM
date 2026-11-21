@@ -1,0 +1,18 @@
+# rahasia & data lokal (wajib)
+.env
+*.db
+*.db-wal
+*.db-shm
+data/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# editor / os
+.DS_Store
+.vscode/
+.idea/
