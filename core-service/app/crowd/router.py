@@ -3,11 +3,13 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from ..common import parse_id_list
 from ..db import get_db
+from ..places.service import get_place
 from ..identity.deps import User, get_current_user, require_roles
 from ..places.service import PlaceError, can_manage, require_place
 from . import service
-from .schemas import CrowdReportIn, CrowdReportOut, CrowdStatusOut, ModerateIn
+from .schemas import CrowdBatchOut, CrowdReportIn, CrowdReportOut, CrowdStatusOut, ModerateIn
 
 router = APIRouter(prefix="/api", tags=["Crowd"])
 
@@ -54,3 +56,23 @@ def moderate(report_id: int, body: ModerateIn, user: User = Depends(require_role
     if not can_manage(user, _place(db, row["place_id"])):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "bukan pengelola tempat ini")
     return service.moderate(db, report_id, body.status)
+
+
+def crowd_batch(raw_ids: str, db: sqlite3.Connection):
+    try:
+        ids = parse_id_list(raw_ids)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    data, missing = [], []
+    for pid in ids:
+        p = get_place(db, pid)
+        if p:
+            data.append(service.crowd_status(db, p))
+        else:
+            missing.append(pid)
+    return {"data": data, "missing_ids": missing}
+
+
+@router.get("/crowd", response_model=CrowdBatchOut, summary="Status keramaian banyak tempat sekaligus")
+def crowd_many(place_ids: str = Query(..., description="mis. 1,2,3 (maks 50)"), db: sqlite3.Connection = Depends(get_db)):
+    return crowd_batch(place_ids, db)

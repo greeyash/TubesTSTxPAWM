@@ -44,3 +44,8 @@ class CrowdStatusOut(BaseModel):
     is_peak: bool
     at: str
     notes: List[str] = []
+
+
+class CrowdBatchOut(BaseModel):
+    data: List[CrowdStatusOut]
+    missing_ids: List[int] = []

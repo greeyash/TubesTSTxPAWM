@@ -84,3 +84,22 @@ def point_segment_km(p: LatLon, a: LatLon, b: LatLon) -> float:
 def slugify(text: str) -> str:
     s = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
     return s or "tempat"
+
+
+def parse_id_list(raw: str, max_items: int = 50) -> list:
+    """'1,2, 3' -> [1, 2, 3] (unik, urutan dipertahankan)."""
+    out = []
+    for part in raw.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if not part.isdigit():
+            raise ValueError(f"id tidak valid: {part!r}")
+        v = int(part)
+        if v not in out:
+            out.append(v)
+    if not out:
+        raise ValueError("daftar id kosong")
+    if len(out) > max_items:
+        raise ValueError(f"maksimal {max_items} id per permintaan")
+    return out

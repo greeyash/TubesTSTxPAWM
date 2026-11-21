@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ..common import iso_utc, now_wib, to_wib
+from ..common import iso_utc, now_wib, parse_id_list, to_wib
 from ..crowd.service import crowd_status
 from ..db import get_db
 from ..identity.deps import User, get_current_user, require_manager
@@ -12,7 +12,7 @@ from ..places.schemas import FoodType
 from ..places.service import can_manage, get_place
 from . import recommend, service
 from .schemas import (Dashboard, EatNowOut, PlanCreate, PlanListItem, PlanOut, PlanUpdate, ReorderIn, ReorderOut,
-                      VisitForecast)
+                      VisitForecast, VisitForecastBatch)
 
 router = APIRouter(prefix="/api", tags=["Planning"])
 
@@ -100,6 +100,29 @@ def forecast_for(place_id: int, day: Optional[date], db: sqlite3.Connection):
     if not p:
         raise HTTPException(404, "tempat tidak ditemukan")
     return service.visit_forecast(db, p, day or now_wib().date())
+
+
+def forecast_batch(raw_ids: str, day: Optional[date], db: sqlite3.Connection):
+    try:
+        ids = parse_id_list(raw_ids, max_items=20)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    d = day or now_wib().date()
+    data, missing = [], []
+    for pid in ids:
+        p = get_place(db, pid)
+        if p:
+            data.append(service.visit_forecast(db, p, d))
+        else:
+            missing.append(pid)
+    return {"date": d.isoformat(), "data": data, "missing_ids": missing}
+
+
+@router.get("/visit-forecast", response_model=VisitForecastBatch,
+            summary="Prediksi kepadatan kunjungan untuk banyak tempat sekaligus")
+def visit_forecast_many(place_ids: str = Query(..., description="mis. 1,2,3 (maks 20)"),
+                        date: Optional[date] = Query(None), db: sqlite3.Connection = Depends(get_db)):
+    return forecast_batch(place_ids, date, db)
 
 
 @router.get("/places/{place_id}/visit-forecast", response_model=VisitForecast,
