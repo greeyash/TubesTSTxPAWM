@@ -8,7 +8,7 @@ from typing import List, Optional
 from fastapi import Depends, FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from .common import now_wib
@@ -61,7 +61,9 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Bebas Core Service", version=VERSION, description=DESCRIPTION, lifespan=lifespan)
+# Dokumentasi diletakkan di bawah /api supaya ikut aturan tunnel yang hanya meneruskan /api/*.
+app = FastAPI(title="Bebas Core Service", version=VERSION, description=DESCRIPTION, lifespan=lifespan,
+              docs_url="/api/docs", redoc_url="/api/redoc", openapi_url="/api/openapi.json")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -90,14 +92,19 @@ async def validation_error(_: Request, exc: RequestValidationError):
     return JSONResponse({"error": "VALIDATION_ERROR", "message": message, "details": details}, status_code=422)
 
 
+@app.get("/docs", include_in_schema=False)
+def docs_redirect():
+    return RedirectResponse("/api/docs")
+
+
 @app.get("/api", tags=["Health"], summary="Info service dan tautan dokumentasi")
 def api_root():
     return {
         "service": "bebas-core",
         "version": VERSION,
         "description": "Perencana wisata & kuliner Bandung berbasis prediksi kemacetan dan cuaca (K02, Tourism)",
-        "docs": "/docs",
-        "openapi": "/openapi.json",
+        "docs": "/api/docs",
+        "openapi": "/api/openapi.json",
         "health": "/api/health",
         "auth": "Bearer JWT (POST /api/auth/login) untuk pengguna; X-API-Key untuk /api/public/*",
     }

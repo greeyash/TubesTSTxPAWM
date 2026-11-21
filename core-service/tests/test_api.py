@@ -177,4 +177,7 @@ def test_api_key_rate_limit(client, admin, monkeypatch):
 
 def test_api_root(client):
     r = client.get("/api")
-    assert r.status_code == 200 and r.json()["docs"] == "/docs"
+    assert r.status_code == 200 and r.json()["docs"] == "/api/docs"
+    assert client.get("/api/docs").status_code == 200
+    assert client.get("/api/openapi.json").json()["info"]["title"] == "Bebas Core Service"
+    assert client.get("/docs", follow_redirects=False).headers["location"] == "/api/docs"
