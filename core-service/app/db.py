@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS places (
   food_type TEXT,
   price_level INTEGER,
   signature_menu TEXT NOT NULL DEFAULT '[]',
+  photo TEXT,
   corridor_slug TEXT,
   manager_id INTEGER REFERENCES users(id),
   created_at TEXT NOT NULL,
@@ -145,10 +146,25 @@ def init_db() -> None:
     try:
         conn.execute("PRAGMA journal_mode = WAL")
         conn.executescript(SCHEMA)
+        _migrate(conn)
         _seed(conn)
         conn.commit()
     finally:
         conn.close()
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Perubahan skema untuk database yang sudah ada (mis. di STB). Tidak menghapus data."""
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(places)")}
+    if "photo" not in cols:
+        conn.execute("ALTER TABLE places ADD COLUMN photo TEXT")
+        log.info("migrasi: kolom places.photo ditambahkan")
+    # isi foto dari seed untuk tempat yang belum punya foto
+    seed = json.loads((settings.seed_dir / "places.json").read_text(encoding="utf-8"))
+    for p in seed["places"]:
+        if p.get("photo"):
+            conn.execute("UPDATE places SET photo = ? WHERE slug = ? AND photo IS NULL",
+                         (json.dumps(p["photo"], ensure_ascii=False), p["slug"]))
 
 
 def _seed(conn: sqlite3.Connection) -> None:
@@ -176,13 +192,15 @@ def _seed(conn: sqlite3.Connection) -> None:
             conn.execute(
                 "INSERT INTO places(slug,name,category,description,address,lat,lon,open_time,close_time,closed_days,"
                 "peak_hours,parking,rain_friendly,halal,avg_visit_minutes,ticket_price,food_type,price_level,"
-                "signature_menu,corridor_slug,created_at,updated_at)"
-                " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "signature_menu,photo,corridor_slug,created_at,updated_at)"
+                " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (p["slug"], p["name"], p["category"], p.get("description"), p.get("address"), p["lat"], p["lon"],
                  p["open_time"], p["close_time"], json.dumps(p.get("closed_days", [])),
                  json.dumps(p.get("peak_hours", {})), json.dumps(p.get("parking", {})),
                  int(p.get("rain_friendly", False)), int(p.get("halal", False)), p.get("avg_visit_minutes", 60),
                  p.get("ticket_price", 0), p.get("food_type"), p.get("price_level"),
-                 json.dumps(p.get("signature_menu", []), ensure_ascii=False), p.get("corridor_slug"), now, now),
+                 json.dumps(p.get("signature_menu", []), ensure_ascii=False),
+                 json.dumps(p["photo"], ensure_ascii=False) if p.get("photo") else None,
+                 p.get("corridor_slug"), now, now),
             )
         log.info("seed: %d tempat dimuat", len(data["places"]))

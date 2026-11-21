@@ -34,6 +34,14 @@ class Parking(BaseModel):
     vehicle: Literal["mobil", "motor"] = Field(default="mobil", description="mobil = muat mobil dan motor; motor = hanya motor")
 
 
+class Photo(BaseModel):
+    url: str = Field(description="gambar (lebar ~900 px) dari Wikimedia Commons")
+    credit: str = Field(description="nama fotografer, wajib ditampilkan")
+    license: str = Field(examples=["CC BY-SA 4.0"])
+    source: Optional[str] = Field(default=None, description="halaman file di Wikimedia Commons")
+    wiki: Optional[str] = None
+
+
 class PlaceFields(BaseModel):
     name: str = Field(min_length=2, max_length=120)
     category: Category
@@ -99,6 +107,7 @@ class PlaceOut(PlaceFields):
     is_open_now: bool
     is_peak_now: bool
     open_late: bool = Field(description="buka sampai >= 21.00")
+    photo: Optional[Photo] = Field(default=None, description="foto tempat (bisa kosong)")
     zone: Literal["utara", "kota", "selatan"]
     peak_hint: Optional[str] = Field(default=None, examples=["ramai pukul 12.00-13.00, disarankan datang 11.00"])
     created_at: str

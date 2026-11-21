@@ -27,6 +27,7 @@ def row_to_place(row: sqlite3.Row, at: Optional[datetime] = None) -> Dict[str, A
     for f in BOOL_FIELDS:
         p[f] = bool(p[f])
     p["parking"].setdefault("vehicle", "mobil")
+    p["photo"] = json.loads(p["photo"]) if p.get("photo") else None
     at = at or now_wib()
     p["is_open_now"] = is_open_at(p, at)
     p["is_peak_now"] = is_peak_at(p, at)
