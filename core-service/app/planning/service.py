@@ -27,6 +27,7 @@ from ..crowd.service import LABELS, crowd_status, estimate_level, queue_status
 from ..events import emit
 from ..places.service import get_place, is_open_at, is_peak_at, list_places, zone_of
 from ..prediction import service as pred
+from . import external
 
 PEN_CLOSED, PEN_OVERTIME, PEN_LOCK, PEN_MEAL = 300, 120, 200, 150
 PEN_RAIN, PEN_CROWDED, PEN_PEAK, WAIT_W = 45, 40, 20, 0.5
@@ -37,7 +38,7 @@ MEALS: Dict[str, Tuple[str, str, int, Tuple[str, ...]]] = {
     "makan_siang": ("11:00", "13:30", 60, ("makanan_berat", "sentra_kuliner", "kafe")),
     "jajan_sore": ("15:00", "17:30", 30, ("jajanan", "kafe", "oleh_oleh", "sentra_kuliner")),
 }
-Stop = Dict[str, Any]  # {id?, place_id, duration_minutes, kind, locked_time}
+Stop = Dict[str, Any]  # {id?, place_id | ext_ref+ext_snapshot, duration_minutes, kind, locked_time}
 
 
 class PlanError(Exception):
@@ -65,22 +66,42 @@ def require_access(db: sqlite3.Connection, plan_id: int, user: Dict[str, Any]) -
 
 
 def _stops(db: sqlite3.Connection, plan_id: int) -> List[Stop]:
-    return [dict(r) for r in db.execute(
-        "SELECT id, place_id, duration_minutes, kind, locked_time FROM plan_items"
-        " WHERE plan_id = ? ORDER BY position, id", (plan_id,))]
+    out = []
+    for r in db.execute(
+            "SELECT id, place_id, ext_ref, ext_snapshot, duration_minutes, kind, locked_time FROM plan_items"
+            " WHERE plan_id = ? ORDER BY position, id", (plan_id,)):
+        d = dict(r)
+        d["ext_snapshot"] = json.loads(d["ext_snapshot"]) if d["ext_snapshot"] else None
+        out.append(d)
+    return out
 
 
 def _stops_from_input(db: sqlite3.Connection, items: Sequence[Dict[str, Any]]) -> List[Stop]:
     out: List[Stop] = []
     seen = set()
     for it in items:
+        ext = it.get("external")
+        if ext:
+            ref = ext["destination_id"]
+            if ref in seen:
+                raise PlanError(f"destinasi {ref} muncul dua kali", 422)
+            seen.add(ref)
+            try:
+                place = external.to_place(ref, ext)
+            except ValueError as e:
+                raise PlanError(f"{ref}: {e}", 422)
+            out.append({"place_id": None, "ext_ref": ref, "ext_snapshot": ext,
+                        "duration_minutes": it.get("duration_minutes") or place["avg_visit_minutes"],
+                        "kind": "kunjungan", "locked_time": it.get("locked_time")})
+            continue
         p = get_place(db, it["place_id"])
         if not p:
             raise PlanError(f"tempat {it['place_id']} tidak ditemukan", 422)
         if p["id"] in seen:
             raise PlanError(f"tempat {p['name']} muncul dua kali", 422)
         seen.add(p["id"])
-        out.append({"place_id": p["id"], "duration_minutes": it.get("duration_minutes") or p["avg_visit_minutes"],
+        out.append({"place_id": p["id"], "ext_ref": None, "ext_snapshot": None,
+                    "duration_minutes": it.get("duration_minutes") or p["avg_visit_minutes"],
                     "kind": "kunjungan", "locked_time": it.get("locked_time")})
     _check_locks(out)
     return out
@@ -99,13 +120,14 @@ def _save_stops(db: sqlite3.Connection, plan_id: int, stops: Sequence[Stop]) -> 
     for gone in existing - keep:
         db.execute("DELETE FROM plan_items WHERE id = ?", (gone,))
     for pos, s in enumerate(stops, start=1):
-        vals = (s["place_id"], pos, s["duration_minutes"], s["kind"], s.get("locked_time"))
+        snap = json.dumps(s["ext_snapshot"], ensure_ascii=False) if s.get("ext_snapshot") else None
+        vals = (s.get("place_id"), s.get("ext_ref"), snap, pos, s["duration_minutes"], s["kind"], s.get("locked_time"))
         if s.get("id") in existing:
-            db.execute("UPDATE plan_items SET place_id=?, position=?, duration_minutes=?, kind=?, locked_time=?"
-                       " WHERE id = ?", (*vals, s["id"]))
+            db.execute("UPDATE plan_items SET place_id=?, ext_ref=?, ext_snapshot=?, position=?, duration_minutes=?,"
+                       " kind=?, locked_time=? WHERE id = ?", (*vals, s["id"]))
         else:
-            db.execute("INSERT INTO plan_items(plan_id, place_id, position, duration_minutes, kind, locked_time)"
-                       " VALUES (?,?,?,?,?,?)", (plan_id, *vals))
+            db.execute("INSERT INTO plan_items(plan_id, place_id, ext_ref, ext_snapshot, position, duration_minutes,"
+                       " kind, locked_time) VALUES (?,?,?,?,?,?,?,?)", (plan_id, *vals))
 
 
 def _check_date(s: str) -> date:
@@ -220,8 +242,16 @@ class Context:
             self._places[place_id] = get_place(self.db, place_id)  # type: ignore[assignment]
         return self._places[place_id]
 
+    def place_of(self, stop: Stop) -> Dict[str, Any]:
+        """Tempat Bebas, atau terjemahan snapshot destinasi kelompok lain (ACL)."""
+        if stop.get("ext_ref"):
+            return external.to_place(stop["ext_ref"], stop["ext_snapshot"])
+        return self.place(stop["place_id"])
+
     def live_level(self, place: Dict[str, Any]) -> Optional[int]:
         """Level dari laporan langsung (bukan perkiraan), hanya bermakna untuk kunjungan dekat waktu sekarang."""
+        if place["id"] is None:
+            return None  # destinasi eksternal: Bebas tidak punya laporan keramaiannya
         if place["id"] not in self._live:
             st = crowd_status(self.db, place, self.now)
             self._live[place["id"]] = st["level"] if st["source"] != "perkiraan" else None
@@ -249,7 +279,7 @@ def simulate(ctx: Context, stops: Sequence[Stop], start: Optional[datetime] = No
     cost = 0.0
     rows: List[Dict[str, Any]] = []
     for idx, stop in enumerate(stops):
-        place = ctx.place(stop["place_id"])
+        place = ctx.place_of(stop)
         here: LatLon = (place["lat"], place["lon"])
         est = pred.estimate(ctx.net, ctx.leg(pos, here), t, weather_fn=ctx.weather_fn)
         travel = est["predicted_minutes"]
@@ -302,6 +332,8 @@ def simulate(ctx: Context, stops: Sequence[Stop], start: Optional[datetime] = No
         if live is not None and live >= 4:
             cost += PEN_CROWDED
             warnings.append("dilaporkan antre panjang saat ini")
+        if stop.get("ext_snapshot") and external.is_stale(stop["ext_snapshot"]):
+            warnings.append("snapshot destinasi berumur > 7 hari, perlu disegarkan dari sumbernya")
         rain = ctx.rain_at(start_visit)
         if rain is not None and rain >= 1.0 and not place["rain_friendly"]:
             cost += PEN_RAIN
@@ -312,7 +344,8 @@ def simulate(ctx: Context, stops: Sequence[Stop], start: Optional[datetime] = No
             level = live if live is not None else estimate_level(place, start_visit)
             rows.append({
                 "item_id": stop.get("id"), "position": idx + 1, "kind": kind, "locked_time": stop.get("locked_time"),
-                "place_id": place["id"], "place_name": place["name"], "category": place["category"],
+                "place_id": place["id"], "external_ref": place.get("external_ref"),
+                "place_name": place["name"], "category": place["category"],
                 "zone": zone_of(place["lat"]), "travel_minutes": round(travel, 1),
                 "travel_confidence": est["confidence"]["level"],
                 "arrive_at": arrive.strftime("%H:%M"), "start_visit_at": start_visit.strftime("%H:%M"),
@@ -429,12 +462,11 @@ def insert_meals(ctx: Context, stops: List[Stop], kinds: List[str], prefs: Dict[
     for kind in kinds:
         if any(s["kind"] == kind for s in stops):
             continue
-        used = {s["place_id"] for s in stops}
-        anchors = [origin or ctx.origin] + [(ctx.place(s["place_id"])["lat"], ctx.place(s["place_id"])["lon"])
-                                            for s in stops]
+        used = {s["place_id"] for s in stops if s.get("place_id")}
+        anchors = [origin or ctx.origin] + [_ll(ctx.place_of(s)) for s in stops]
         best: Optional[Tuple[float, List[Stop]]] = None
         for cand in _meal_candidates(ctx, kind, prefs, used, anchors):
-            meal = {"place_id": cand["id"], "kind": kind, "locked_time": None,
+            meal = {"place_id": cand["id"], "ext_ref": None, "ext_snapshot": None, "kind": kind, "locked_time": None,
                     "duration_minutes": min(MEALS[kind][2], cand["avg_visit_minutes"])}
             for pos in range(len(stops) + 1):
                 trial = stops[:pos] + [meal] + stops[pos:]
@@ -453,7 +485,7 @@ WISATA = ("outdoor", "indoor", "landmark")
 
 def suggest_alternatives(ctx: Context, stops: Sequence[Stop], rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     out = []
-    in_plan = {s["place_id"] for s in stops}
+    in_plan = {s["place_id"] for s in stops if s.get("place_id")}
     pool = list_places(ctx.db)
     for i, row in enumerate(rows):
         rain = any("hujan" in w for w in row["warnings"])
@@ -461,9 +493,9 @@ def suggest_alternatives(ctx: Context, stops: Sequence[Stop], rows: List[Dict[st
         closed = any("tutup" in w and "jam tutup" not in w for w in row["warnings"])
         if not (rain or crowded or closed):
             continue
-        place = ctx.place(row["place_id"])
-        prev = ctx.origin if i == 0 else _ll(ctx.place(rows[i - 1]["place_id"]))
-        nxt = _ll(ctx.place(rows[i + 1]["place_id"])) if i + 1 < len(rows) else None
+        place = ctx.place_of(stops[i])
+        prev = ctx.origin if i == 0 else _ll(ctx.place_of(stops[i - 1]))
+        nxt = _ll(ctx.place_of(stops[i + 1])) if i + 1 < len(rows) else None
         here = _ll(place)
         base = haversine_km(prev, here) + (haversine_km(here, nxt) if nxt else 0)
         visit_at = at_time(ctx.day, row["start_visit_at"])
@@ -486,7 +518,8 @@ def suggest_alternatives(ctx: Context, stops: Sequence[Stop], rows: List[Dict[st
                 alts.append({"place_id": c["id"], "name": c["name"], "category": c["category"],
                              "detour_km": round(detour, 1)})
         alts.sort(key=lambda a: a["detour_km"])
-        out.append({"item_id": row["item_id"], "place_id": place["id"], "place_name": place["name"],
+        out.append({"item_id": row["item_id"], "place_id": place["id"], "external_ref": place.get("external_ref"),
+                    "place_name": place["name"],
                     "reason": "tutup" if closed else "hujan" if rain else "antre_panjang",
                     "alternatives": alts[:3]})
     return out
@@ -512,7 +545,7 @@ def reorder(db: sqlite3.Connection, plan_id: int, strategy: str, manual: Optiona
             sug = by_item.get(s["id"])
             if sug:
                 alt = sug["alternatives"][0]
-                s["place_id"] = alt["place_id"]
+                s["place_id"], s["ext_ref"], s["ext_snapshot"] = alt["place_id"], None, None
                 s["duration_minutes"] = get_place(db, alt["place_id"])["avg_visit_minutes"]
                 why = {"hujan": "hujan", "antre_panjang": "antre panjang", "tutup": "tutup"}[sug["reason"]]
                 replaced.append(f"{sug['place_name']} diganti {alt['name']} karena {why} "
@@ -536,7 +569,7 @@ def reorder(db: sqlite3.Connection, plan_id: int, strategy: str, manual: Optiona
                 else:
                     break
             if locked_prefix:
-                origin = _ll(ctx.place(locked_prefix[-1]["place_id"]))
+                origin = _ll(ctx.place_of(locked_prefix[-1]))
             start = cut
         rest = stops[len(locked_prefix):]
         done_meals = {s["kind"] for s in locked_prefix}
@@ -546,7 +579,8 @@ def reorder(db: sqlite3.Connection, plan_id: int, strategy: str, manual: Optiona
         ordered = best_order(ctx, visits + kept_meals, start, origin)
         new_stops = locked_prefix + insert_meals(ctx, ordered, kinds, plan["options"], start, origin)
 
-    changed = [(s.get("id"), s["place_id"]) for s in new_stops] != [(s["id"], s["place_id"]) for s in _stops(db, plan_id)]
+    sig = lambda ss: [(s.get("id"), s.get("place_id"), s.get("ext_ref")) for s in ss]  # noqa: E731
+    changed = sig(new_stops) != sig(_stops(db, plan_id))
     if changed:
         _save_stops(db, plan_id, new_stops)
         db.execute("UPDATE plans SET updated_at = ? WHERE id = ?", (iso_utc(utcnow()), plan_id))

@@ -101,11 +101,14 @@ CREATE TABLE IF NOT EXISTS plans (
 CREATE TABLE IF NOT EXISTS plan_items (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   plan_id INTEGER NOT NULL REFERENCES plans(id) ON DELETE CASCADE,
-  place_id INTEGER NOT NULL REFERENCES places(id),
+  place_id INTEGER REFERENCES places(id),
+  ext_ref TEXT,
+  ext_snapshot TEXT,
   position INTEGER NOT NULL,
   duration_minutes INTEGER NOT NULL,
   kind TEXT NOT NULL DEFAULT 'kunjungan' CHECK (kind IN ('kunjungan','makan_siang','jajan_sore')),
-  locked_time TEXT
+  locked_time TEXT,
+  CHECK (place_id IS NOT NULL OR ext_ref IS NOT NULL)
 );
 CREATE TABLE IF NOT EXISTS domain_events (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

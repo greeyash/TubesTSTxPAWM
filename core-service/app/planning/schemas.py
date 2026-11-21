@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from ..common import HHMM_PATTERN
 
@@ -14,12 +14,32 @@ class Origin(BaseModel):
     lon: float = Field(ge=-180, le=180, examples=[107.6191])
 
 
+class ExternalPlace(BaseModel):
+    """Snapshot destinasi kelompok lain (mis. Jelajah Nusantara K1). Disimpan apa adanya + waktu pengambilan."""
+    destination_id: str = Field(pattern=r"^[a-z]{2,6}_[A-Za-z0-9_-]{1,40}$", examples=["dst_12"])
+    name: str = Field(min_length=1, max_length=120, examples=["Curug Citambur"])
+    lat: float = Field(ge=-11.5, le=6.5, description="dalam wilayah Indonesia")
+    lon: float = Field(ge=94.5, le=141.5)
+    opening_hours: Optional[str] = Field(default=None, examples=["07:00-16:00"])
+    category: Optional[str] = Field(default=None, examples=["curug"],
+                                    description="kategori versi sumber; diterjemahkan ke outdoor/indoor/landmark/kuliner")
+    rain_friendly: Optional[bool] = None
+    captured_at: Optional[str] = Field(default=None, examples=["2026-11-20T08:00:00Z"])
+
+
 class PlanItemIn(BaseModel):
-    place_id: int
+    place_id: Optional[int] = Field(default=None, description="tempat dari katalog Bebas")
+    external: Optional[ExternalPlace] = Field(default=None, description="atau destinasi kelompok lain (snapshot)")
     duration_minutes: Optional[int] = Field(default=None, ge=10, le=720,
                                             description="default = rata-rata lama kunjungan tempat")
     locked_time: Optional[str] = Field(default=None, pattern=HHMM_PATTERN,
                                        description="kunci tempat ini pada jam tertentu (mulai kunjungan)")
+
+    @model_validator(mode="after")
+    def _one_source(self) -> "PlanItemIn":
+        if (self.place_id is None) == (self.external is None):
+            raise ValueError("isi salah satu: place_id (katalog Bebas) atau external (snapshot destinasi lain)")
+        return self
 
 
 class PlanOptions(BaseModel):
@@ -63,7 +83,8 @@ class ScheduleItem(BaseModel):
     position: int
     kind: Kind
     locked_time: Optional[str] = None
-    place_id: int
+    place_id: Optional[int] = None
+    external_ref: Optional[str] = Field(default=None, description="ID destinasi kelompok lain, mis. dst_12")
     place_name: str
     category: str
     zone: Literal["utara", "kota", "selatan"]
@@ -105,7 +126,8 @@ class Alternative(BaseModel):
 
 class Suggestion(BaseModel):
     item_id: int
-    place_id: int
+    place_id: Optional[int] = None
+    external_ref: Optional[str] = None
     place_name: str
     reason: Literal["hujan", "antre_panjang", "tutup"]
     alternatives: List[Alternative]
@@ -189,6 +211,12 @@ class VisitForecast(BaseModel):
     total_planned_arrivals: int
     busiest_hour: Optional[str] = None
     hours: List[ForecastHour]
+
+
+class VisitForecastBatch(BaseModel):
+    date: str
+    data: List[VisitForecast]
+    missing_ids: List[int] = []
 
 
 class ReportSummary(BaseModel):
