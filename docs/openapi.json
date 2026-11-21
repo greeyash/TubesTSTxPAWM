@@ -1,0 +1,6197 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Bebas Core Service",
+    "description": "\nCore service kelompok **Bebas** (K02, tema Tourism).\n\n**Autentikasi**\n* Pengguna aplikasi: `POST /api/auth/login` lalu kirim `Authorization: Bearer <token>`.\n  Peran: `wisatawan`, `pengelola`, `admin`.\n* Kelompok lain: endpoint `/api/public/*` dengan header `X-API-Key: <kunci>`. Minta kunci ke admin Bebas.\n\n**Bounded context** (nama di makalah → folder):\nIdentitas & Akses → `identity`, Katalog Tempat → `places`, Keramaian & Antrean → `crowd`,\nPrediksi Kondisi Perjalanan → `prediction`, Perencanaan Perjalanan → `planning`.\nNotifikasi Perjalanan dikerjakan di Tugas 3; event-nya sudah diterbitkan di `/api/events`.\n\nWaktu memakai WIB (UTC+7).\n",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Cek service hidup",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Semua domain event (outbox), untuk konsumen internal",
+        "operationId": "events_api_events_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "After"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "filter: TempatDiperbarui, StatusAntreanBerubah, RencanaBerubah",
+              "title": "Type"
+            },
+            "description": "filter: TempatDiperbarui, StatusAntreanBerubah, RencanaBerubah"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "Daftar akun wisatawan atau pengelola",
+        "operationId": "register_api_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "Login, dapat JWT",
+        "operationId": "login_api_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Identity"
+        ],
+        "summary": "Profil pengguna yang sedang login",
+        "operationId": "me_api_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/admin/users": {
+      "get": {
+        "tags": [
+          "Identity",
+          "Admin"
+        ],
+        "summary": "List Users",
+        "operationId": "list_users_api_admin_users_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Users Api Admin Users Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/admin/users/{user_id}/role": {
+      "patch": {
+        "tags": [
+          "Identity",
+          "Admin"
+        ],
+        "summary": "Set Role",
+        "operationId": "set_role_api_admin_users__user_id__role_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoleUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/users/{user_id}/verify": {
+      "patch": {
+        "tags": [
+          "Identity",
+          "Admin"
+        ],
+        "summary": "Verifikasi akun pengelola / UMKM",
+        "operationId": "verify_user_api_admin_users__user_id__verify_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/api-keys": {
+      "get": {
+        "tags": [
+          "Identity",
+          "Admin"
+        ],
+        "summary": "List Keys",
+        "operationId": "list_keys_api_admin_api_keys_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApiKeyOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Keys Api Admin Api Keys Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Identity",
+          "Admin"
+        ],
+        "summary": "Buat API key untuk kelompok lain (kunci hanya tampil sekali)",
+        "operationId": "create_key_api_admin_api_keys_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiKeyCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyCreated"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/admin/api-keys/{key_id}": {
+      "delete": {
+        "tags": [
+          "Identity",
+          "Admin"
+        ],
+        "summary": "Cabut API key",
+        "operationId": "revoke_key_api_admin_api_keys__key_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Key Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/places": {
+      "get": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "Daftar tempat (bisa difilter)",
+        "operationId": "list_places_api_places_get",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "outdoor",
+                    "indoor",
+                    "landmark",
+                    "kuliner"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "rain_friendly",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "true = cocok saat hujan",
+              "title": "Rain Friendly"
+            },
+            "description": "true = cocok saat hujan"
+          },
+          {
+            "name": "halal",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Halal"
+            }
+          },
+          {
+            "name": "corridor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "slug koridor",
+              "title": "Corridor"
+            },
+            "description": "slug koridor"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "cari nama/alamat",
+              "title": "Q"
+            },
+            "description": "cari nama/alamat"
+          },
+          {
+            "name": "food_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "makanan_berat",
+                    "jajanan",
+                    "kafe",
+                    "oleh_oleh",
+                    "sentra_kuliner"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Food Type"
+            }
+          },
+          {
+            "name": "price_max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 4,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "batas price_level",
+              "title": "Price Max"
+            },
+            "description": "batas price_level"
+          },
+          {
+            "name": "open_late",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "true = buka malam (>= 21.00)",
+              "title": "Open Late"
+            },
+            "description": "true = buka malam (>= 21.00)"
+          },
+          {
+            "name": "open_now",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Open Now"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlaceOut"
+                  },
+                  "title": "Response List Places Api Places Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "Tambah tempat (pengelola/admin)",
+        "operationId": "create_place_api_places_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaceCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/places/mine": {
+      "get": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "Tempat yang saya kelola (pengelola)",
+        "operationId": "my_places_api_places_mine_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlaceOut"
+                  },
+                  "type": "array",
+                  "title": "Response My Places Api Places Mine Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/places/{place_id}": {
+      "get": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "Detail tempat",
+        "operationId": "get_place_api_places__place_id__get",
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "Ubah tempat (pengelola tempat itu / admin)",
+        "operationId": "update_place_api_places__place_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlaceUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/places/{place_id}/crowd-reports": {
+      "post": {
+        "tags": [
+          "Crowd"
+        ],
+        "summary": "Kirim laporan keramaian (divalidasi otomatis)",
+        "operationId": "report_api_places__place_id__crowd_reports_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrowdReportIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrowdReportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Crowd"
+        ],
+        "summary": "Riwayat laporan (pengelola tempat / admin)",
+        "operationId": "list_reports_api_places__place_id__crowd_reports_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CrowdReportOut"
+                  },
+                  "title": "Response List Reports Api Places  Place Id  Crowd Reports Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/places/{place_id}/crowd": {
+      "get": {
+        "tags": [
+          "Crowd"
+        ],
+        "summary": "Status keramaian saat ini",
+        "operationId": "crowd_status_api_places__place_id__crowd_get",
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrowdStatusOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crowd-reports/{report_id}": {
+      "patch": {
+        "tags": [
+          "Crowd"
+        ],
+        "summary": "Validasi/tolak laporan secara manual",
+        "operationId": "moderate_api_crowd_reports__report_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Report Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModerateIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrowdReportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/corridors": {
+      "get": {
+        "tags": [
+          "Prediction"
+        ],
+        "summary": "Daftar koridor dan tabel faktor jam",
+        "operationId": "list_corridors_api_corridors_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CorridorOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Corridors Api Corridors Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/corridors/{slug}/factors": {
+      "get": {
+        "tags": [
+          "Prediction"
+        ],
+        "summary": "Faktor jam satu koridor untuk tanggal tertentu",
+        "operationId": "get_corridor_factors_api_corridors__slug__factors_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Slug"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "YYYY-MM-DD, default hari ini",
+              "title": "Date"
+            },
+            "description": "YYYY-MM-DD, default hari ini"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CorridorFactorsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/predict/travel-time": {
+      "get": {
+        "tags": [
+          "Prediction"
+        ],
+        "summary": "Prediksi waktu tempuh",
+        "operationId": "predict_travel_time_api_predict_travel_time_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "depart_at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601, tanpa zona = WIB. Default sekarang.",
+              "examples": [
+                "2026-11-28T10:00:00"
+              ],
+              "title": "Depart At"
+            },
+            "description": "ISO 8601, tanpa zona = WIB. Default sekarang."
+          },
+          {
+            "name": "from_place_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID tempat asal (atau pakai from_lat/from_lon)",
+              "title": "From Place Id"
+            },
+            "description": "ID tempat asal (atau pakai from_lat/from_lon)"
+          },
+          {
+            "name": "from_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                -6.9025
+              ],
+              "title": "From Lat"
+            }
+          },
+          {
+            "name": "from_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                107.6188
+              ],
+              "title": "From Lon"
+            }
+          },
+          {
+            "name": "to_place_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID tempat tujuan (atau pakai to_lat/to_lon)",
+              "title": "To Place Id"
+            },
+            "description": "ID tempat tujuan (atau pakai to_lat/to_lon)"
+          },
+          {
+            "name": "to_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                -6.8117
+              ],
+              "title": "To Lat"
+            }
+          },
+          {
+            "name": "to_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                107.6178
+              ],
+              "title": "To Lon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPrediction"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/predict/departure-window": {
+      "get": {
+        "tags": [
+          "Prediction"
+        ],
+        "summary": "Jendela berangkat terbaik dalam rentang jam",
+        "operationId": "departure_window_api_predict_departure_window_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "YYYY-MM-DD, default hari ini",
+              "title": "Date"
+            },
+            "description": "YYYY-MM-DD, default hari ini"
+          },
+          {
+            "name": "earliest",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+              "default": "06:00",
+              "title": "Earliest"
+            }
+          },
+          {
+            "name": "latest",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+              "default": "12:00",
+              "title": "Latest"
+            }
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 60,
+              "minimum": 5,
+              "description": "jarak antarslot, menit",
+              "default": 15,
+              "title": "Step"
+            },
+            "description": "jarak antarslot, menit"
+          },
+          {
+            "name": "arrive_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "harus tiba sebelum jam ini",
+              "title": "Arrive By"
+            },
+            "description": "harus tiba sebelum jam ini"
+          },
+          {
+            "name": "from_place_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID tempat asal (atau pakai from_lat/from_lon)",
+              "title": "From Place Id"
+            },
+            "description": "ID tempat asal (atau pakai from_lat/from_lon)"
+          },
+          {
+            "name": "from_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                -6.9025
+              ],
+              "title": "From Lat"
+            }
+          },
+          {
+            "name": "from_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                107.6188
+              ],
+              "title": "From Lon"
+            }
+          },
+          {
+            "name": "to_place_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID tempat tujuan (atau pakai to_lat/to_lon)",
+              "title": "To Place Id"
+            },
+            "description": "ID tempat tujuan (atau pakai to_lat/to_lon)"
+          },
+          {
+            "name": "to_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                -6.8117
+              ],
+              "title": "To Lat"
+            }
+          },
+          {
+            "name": "to_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                107.6178
+              ],
+              "title": "To Lon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartureWindowOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/plans": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Daftar rencana milik saya",
+        "operationId": "list_plans_api_plans_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PlanListItem"
+                  },
+                  "type": "array",
+                  "title": "Response List Plans Api Plans Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Buat rencana satu hari (opsional sisipkan makan siang / jajan sore)",
+        "operationId": "create_plan_api_plans_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/plans/{plan_id}": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Lihat rencana: jadwal, peringatan, jam berangkat terbaik, dan alternatif",
+        "operationId": "get_plan_api_plans__plan_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Ubah rencana (judul, tanggal, jam mulai, asal, daftar tempat, opsi slot makan)",
+        "operationId": "update_plan_api_plans__plan_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Hapus rencana",
+        "operationId": "delete_plan_api_plans__plan_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/plans/{plan_id}/reorder": {
+      "post": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Susun ulang urutan kunjungan (opsional ganti tempat yang kehujanan/antre panjang)",
+        "operationId": "reorder_api_plans__plan_id__reorder_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReorderOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/eat-now": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Mode \"Mau makan sekarang\"",
+        "operationId": "eat_now_api_eat_now_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "examples": [
+                -6.9175
+              ],
+              "title": "Lat"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "examples": [
+                107.6191
+              ],
+              "title": "Lon"
+            }
+          },
+          {
+            "name": "at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "default sekarang; tanpa zona = WIB",
+              "title": "At"
+            },
+            "description": "default sekarang; tanpa zona = WIB"
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 30.0,
+              "exclusiveMinimum": 0.0,
+              "default": 5.0,
+              "title": "Radius Km"
+            }
+          },
+          {
+            "name": "price_max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 4,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Price Max"
+            }
+          },
+          {
+            "name": "halal",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Halal"
+            }
+          },
+          {
+            "name": "food_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "makanan_berat",
+                    "jajanan",
+                    "kafe",
+                    "oleh_oleh",
+                    "sentra_kuliner"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Food Type"
+            }
+          },
+          {
+            "name": "open_late",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "hanya yang buka malam",
+              "title": "Open Late"
+            },
+            "description": "hanya yang buka malam"
+          },
+          {
+            "name": "include_long_queue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "tampilkan juga yang antre panjang",
+              "default": false,
+              "title": "Include Long Queue"
+            },
+            "description": "tampilkan juga yang antre panjang"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 30,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EatNowOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/places/{place_id}/visit-forecast": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Prediksi kepadatan kunjungan per jam (dari itinerary tersimpan + jam ramai)",
+        "operationId": "visit_forecast_api_places__place_id__visit_forecast_get",
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "YYYY-MM-DD, default hari ini",
+              "title": "Date"
+            },
+            "description": "YYYY-MM-DD, default hari ini"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitForecast"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/places/{place_id}/dashboard": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Dashboard pengelola: perkiraan kedatangan dan ringkasan laporan hari ini",
+        "operationId": "dashboard_api_places__place_id__dashboard_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dashboard"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/places": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Daftar tempat",
+        "operationId": "list_places_api_public_places_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "outdoor",
+                    "indoor",
+                    "landmark",
+                    "kuliner"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "rain_friendly",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rain Friendly"
+            }
+          },
+          {
+            "name": "halal",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Halal"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "food_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "makanan_berat",
+                    "jajanan",
+                    "kafe",
+                    "oleh_oleh",
+                    "sentra_kuliner"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Food Type"
+            }
+          },
+          {
+            "name": "price_max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 4,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Price Max"
+            }
+          },
+          {
+            "name": "open_late",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Open Late"
+            }
+          },
+          {
+            "name": "open_now",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Open Now"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlaceOut"
+                  },
+                  "title": "Response List Places Api Public Places Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/places/{place_id}": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Detail tempat",
+        "operationId": "get_place_api_public_places__place_id__get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlaceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/places/{place_id}/crowd": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Status keramaian tempat",
+        "operationId": "get_crowd_api_public_places__place_id__crowd_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrowdStatusOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/corridors": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Daftar koridor",
+        "operationId": "list_corridors_api_public_corridors_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CorridorOut"
+                  },
+                  "type": "array",
+                  "title": "Response List Corridors Api Public Corridors Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ]
+      }
+    },
+    "/api/public/predict/travel-time": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Prediksi waktu tempuh",
+        "operationId": "travel_time_api_public_predict_travel_time_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "depart_at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ISO 8601, tanpa zona = WIB",
+              "title": "Depart At"
+            },
+            "description": "ISO 8601, tanpa zona = WIB"
+          },
+          {
+            "name": "from_place_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID tempat asal (atau pakai from_lat/from_lon)",
+              "title": "From Place Id"
+            },
+            "description": "ID tempat asal (atau pakai from_lat/from_lon)"
+          },
+          {
+            "name": "from_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                -6.9025
+              ],
+              "title": "From Lat"
+            }
+          },
+          {
+            "name": "from_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                107.6188
+              ],
+              "title": "From Lon"
+            }
+          },
+          {
+            "name": "to_place_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID tempat tujuan (atau pakai to_lat/to_lon)",
+              "title": "To Place Id"
+            },
+            "description": "ID tempat tujuan (atau pakai to_lat/to_lon)"
+          },
+          {
+            "name": "to_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                -6.8117
+              ],
+              "title": "To Lat"
+            }
+          },
+          {
+            "name": "to_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                107.6178
+              ],
+              "title": "To Lon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TravelPrediction"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/predict/departure-window": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Jendela berangkat terbaik",
+        "operationId": "departure_window_api_public_predict_departure_window_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          },
+          {
+            "name": "earliest",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+              "default": "06:00",
+              "title": "Earliest"
+            }
+          },
+          {
+            "name": "latest",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+              "default": "12:00",
+              "title": "Latest"
+            }
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 60,
+              "minimum": 5,
+              "default": 15,
+              "title": "Step"
+            }
+          },
+          {
+            "name": "arrive_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Arrive By"
+            }
+          },
+          {
+            "name": "from_place_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID tempat asal (atau pakai from_lat/from_lon)",
+              "title": "From Place Id"
+            },
+            "description": "ID tempat asal (atau pakai from_lat/from_lon)"
+          },
+          {
+            "name": "from_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                -6.9025
+              ],
+              "title": "From Lat"
+            }
+          },
+          {
+            "name": "from_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                107.6188
+              ],
+              "title": "From Lon"
+            }
+          },
+          {
+            "name": "to_place_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "ID tempat tujuan (atau pakai to_lat/to_lon)",
+              "title": "To Place Id"
+            },
+            "description": "ID tempat tujuan (atau pakai to_lat/to_lon)"
+          },
+          {
+            "name": "to_lat",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                -6.8117
+              ],
+              "title": "To Lat"
+            }
+          },
+          {
+            "name": "to_lon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "examples": [
+                107.6178
+              ],
+              "title": "To Lon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DepartureWindowOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/places/{place_id}/visit-forecast": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Prediksi kepadatan kunjungan per jam (Open Host Service)",
+        "operationId": "visit_forecast_api_public_places__place_id__visit_forecast_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "place_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Place Id"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitForecast"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/eat-now": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Tempat makan terdekat yang tidak macet dan tidak antre",
+        "operationId": "eat_now_api_public_eat_now_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "title": "Lat"
+            }
+          },
+          {
+            "name": "lon",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "title": "Lon"
+            }
+          },
+          {
+            "name": "at",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "At"
+            }
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 30.0,
+              "exclusiveMinimum": 0.0,
+              "default": 5.0,
+              "title": "Radius Km"
+            }
+          },
+          {
+            "name": "price_max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 4,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Price Max"
+            }
+          },
+          {
+            "name": "halal",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Halal"
+            }
+          },
+          {
+            "name": "food_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "makanan_berat",
+                    "jajanan",
+                    "kafe",
+                    "oleh_oleh",
+                    "sentra_kuliner"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Food Type"
+            }
+          },
+          {
+            "name": "open_late",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Open Late"
+            }
+          },
+          {
+            "name": "include_long_queue",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Long Queue"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 30,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EatNowOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/events": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Domain event (Published Language): TempatDiperbarui, StatusAntreanBerubah",
+        "operationId": "events_api_public_events_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "ambil event dengan id > after",
+              "default": 0,
+              "title": "After"
+            },
+            "description": "ambil event dengan id > after"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Alternative": {
+        "properties": {
+          "place_id": {
+            "type": "integer",
+            "title": "Place Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "detour_km": {
+            "type": "number",
+            "title": "Detour Km"
+          }
+        },
+        "type": "object",
+        "required": [
+          "place_id",
+          "name",
+          "category",
+          "detour_km"
+        ],
+        "title": "Alternative"
+      },
+      "ApiKeyCreate": {
+        "properties": {
+          "client_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Client Name",
+            "examples": [
+              "K02-kelompok-lain"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "client_name"
+        ],
+        "title": "ApiKeyCreate"
+      },
+      "ApiKeyCreated": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "client_name": {
+            "type": "string",
+            "title": "Client Name"
+          },
+          "key_prefix": {
+            "type": "string",
+            "title": "Key Prefix"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          },
+          "request_count": {
+            "type": "integer",
+            "title": "Request Count"
+          },
+          "revoked": {
+            "type": "boolean",
+            "title": "Revoked"
+          },
+          "api_key": {
+            "type": "string",
+            "title": "Api Key",
+            "description": "Ditampilkan SEKALI saja. Server hanya menyimpan hash-nya."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "client_name",
+          "key_prefix",
+          "created_at",
+          "request_count",
+          "revoked",
+          "api_key"
+        ],
+        "title": "ApiKeyCreated"
+      },
+      "ApiKeyOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "client_name": {
+            "type": "string",
+            "title": "Client Name"
+          },
+          "key_prefix": {
+            "type": "string",
+            "title": "Key Prefix"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          },
+          "request_count": {
+            "type": "integer",
+            "title": "Request Count"
+          },
+          "revoked": {
+            "type": "boolean",
+            "title": "Revoked"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "client_name",
+          "key_prefix",
+          "created_at",
+          "request_count",
+          "revoked"
+        ],
+        "title": "ApiKeyOut"
+      },
+      "Confidence": {
+        "properties": {
+          "score": {
+            "type": "number",
+            "title": "Score"
+          },
+          "level": {
+            "type": "string",
+            "enum": [
+              "rendah",
+              "sedang",
+              "tinggi"
+            ],
+            "title": "Level"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "score",
+          "level",
+          "reasons"
+        ],
+        "title": "Confidence"
+      },
+      "CorridorFactorsOut": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "day_type": {
+            "type": "string",
+            "title": "Day Type"
+          },
+          "hours": {
+            "items": {
+              "$ref": "#/components/schemas/HourFactor"
+            },
+            "type": "array",
+            "title": "Hours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "date",
+          "day_type",
+          "hours"
+        ],
+        "title": "CorridorFactorsOut"
+      },
+      "CorridorOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "start": {
+            "$ref": "#/components/schemas/LatLonOut"
+          },
+          "end": {
+            "$ref": "#/components/schemas/LatLonOut"
+          },
+          "length_km": {
+            "type": "number",
+            "title": "Length Km"
+          },
+          "base_speed_kmh": {
+            "type": "number",
+            "title": "Base Speed Kmh"
+          },
+          "factors": {
+            "additionalProperties": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Factors"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "start",
+          "end",
+          "length_km",
+          "base_speed_kmh",
+          "factors"
+        ],
+        "title": "CorridorOut"
+      },
+      "CorridorShare": {
+        "properties": {
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "share": {
+            "type": "number",
+            "title": "Share"
+          },
+          "factor": {
+            "type": "number",
+            "title": "Factor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slug",
+          "name",
+          "share",
+          "factor"
+        ],
+        "title": "CorridorShare"
+      },
+      "CrowdReportIn": {
+        "properties": {
+          "level": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Level",
+            "description": "1=sepi, 2=sedang, 3=ramai, 4=sangat ramai, 5=penuh sesak"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 280
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat",
+            "description": "lokasi pelapor (opsional, menaikkan bobot)"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lon"
+          }
+        },
+        "type": "object",
+        "required": [
+          "level"
+        ],
+        "title": "CrowdReportIn"
+      },
+      "CrowdReportOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "place_id": {
+            "type": "integer",
+            "title": "Place Id"
+          },
+          "user_id": {
+            "type": "integer",
+            "title": "User Id"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "flagged",
+              "rejected"
+            ],
+            "title": "Status"
+          },
+          "weight": {
+            "type": "number",
+            "title": "Weight"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "distance_km": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Km"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "place_id",
+          "user_id",
+          "level",
+          "status",
+          "weight",
+          "created_at"
+        ],
+        "title": "CrowdReportOut"
+      },
+      "CrowdStatusOut": {
+        "properties": {
+          "place_id": {
+            "type": "integer",
+            "title": "Place Id"
+          },
+          "place_name": {
+            "type": "string",
+            "title": "Place Name"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level",
+            "description": "1..5"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "queue_status": {
+            "type": "string",
+            "enum": [
+              "sepi",
+              "sedang",
+              "antre_panjang"
+            ],
+            "title": "Queue Status"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "skor kontinu 1.0..5.0"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "laporan",
+              "campuran",
+              "perkiraan"
+            ],
+            "title": "Source"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "report_count": {
+            "type": "integer",
+            "title": "Report Count"
+          },
+          "window_minutes": {
+            "type": "integer",
+            "title": "Window Minutes"
+          },
+          "is_open": {
+            "type": "boolean",
+            "title": "Is Open"
+          },
+          "is_peak": {
+            "type": "boolean",
+            "title": "Is Peak"
+          },
+          "at": {
+            "type": "string",
+            "title": "At"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "place_id",
+          "place_name",
+          "level",
+          "label",
+          "queue_status",
+          "score",
+          "source",
+          "confidence",
+          "report_count",
+          "window_minutes",
+          "is_open",
+          "is_peak",
+          "at"
+        ],
+        "title": "CrowdStatusOut"
+      },
+      "Dashboard": {
+        "properties": {
+          "forecast": {
+            "$ref": "#/components/schemas/VisitForecast"
+          },
+          "current": {
+            "type": "object",
+            "title": "Current"
+          },
+          "reports_today": {
+            "$ref": "#/components/schemas/ReportSummary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "forecast",
+          "current",
+          "reports_today"
+        ],
+        "title": "Dashboard"
+      },
+      "Departure": {
+        "properties": {
+          "planned_start": {
+            "type": "string",
+            "title": "Planned Start"
+          },
+          "recommended_start": {
+            "type": "string",
+            "title": "Recommended Start"
+          },
+          "cost_saving": {
+            "type": "number",
+            "title": "Cost Saving"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "planned_start",
+          "recommended_start",
+          "cost_saving",
+          "note"
+        ],
+        "title": "Departure"
+      },
+      "DepartureWindowOut": {
+        "properties": {
+          "origin": {
+            "$ref": "#/components/schemas/Endpoint"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/Endpoint"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "corridors": {
+            "items": {
+              "$ref": "#/components/schemas/CorridorShare"
+            },
+            "type": "array",
+            "title": "Corridors"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/Sources"
+          },
+          "best": {
+            "$ref": "#/components/schemas/Slot"
+          },
+          "recommended_window": {
+            "$ref": "#/components/schemas/Window"
+          },
+          "avoid": {
+            "items": {
+              "$ref": "#/components/schemas/TimeRange"
+            },
+            "type": "array",
+            "title": "Avoid"
+          },
+          "slots": {
+            "items": {
+              "$ref": "#/components/schemas/Slot"
+            },
+            "type": "array",
+            "title": "Slots"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin",
+          "destination",
+          "date",
+          "distance_km",
+          "corridors",
+          "sources",
+          "best",
+          "recommended_window",
+          "avoid",
+          "slots",
+          "notes"
+        ],
+        "title": "DepartureWindowOut"
+      },
+      "EatNowItem": {
+        "properties": {
+          "place_id": {
+            "type": "integer",
+            "title": "Place Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "food_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Food Type"
+          },
+          "price_level": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Level"
+          },
+          "halal": {
+            "type": "boolean",
+            "title": "Halal"
+          },
+          "signature_menu": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Signature Menu"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "travel_minutes": {
+            "type": "number",
+            "title": "Travel Minutes"
+          },
+          "traffic_status": {
+            "type": "string",
+            "enum": [
+              "lancar",
+              "padat",
+              "macet"
+            ],
+            "title": "Traffic Status"
+          },
+          "queue_status": {
+            "type": "string",
+            "enum": [
+              "sepi",
+              "sedang",
+              "antre_panjang"
+            ],
+            "title": "Queue Status"
+          },
+          "crowd_label": {
+            "type": "string",
+            "title": "Crowd Label"
+          },
+          "crowd_source": {
+            "type": "string",
+            "title": "Crowd Source"
+          },
+          "parking": {
+            "type": "object",
+            "title": "Parking"
+          },
+          "peak_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peak Hint"
+          },
+          "closes_at": {
+            "type": "string",
+            "title": "Closes At"
+          },
+          "open_late": {
+            "type": "boolean",
+            "title": "Open Late"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "rendah",
+              "sedang",
+              "tinggi"
+            ],
+            "title": "Confidence"
+          },
+          "routing": {
+            "type": "string",
+            "title": "Routing"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score"
+          }
+        },
+        "type": "object",
+        "required": [
+          "place_id",
+          "name",
+          "halal",
+          "signature_menu",
+          "distance_km",
+          "travel_minutes",
+          "traffic_status",
+          "queue_status",
+          "crowd_label",
+          "crowd_source",
+          "parking",
+          "closes_at",
+          "open_late",
+          "confidence",
+          "routing",
+          "score"
+        ],
+        "title": "EatNowItem"
+      },
+      "EatNowOut": {
+        "properties": {
+          "at": {
+            "type": "string",
+            "title": "At"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Origin"
+          },
+          "radius_km": {
+            "type": "number",
+            "title": "Radius Km"
+          },
+          "skipped_long_queue": {
+            "type": "integer",
+            "title": "Skipped Long Queue"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/EatNowItem"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "at",
+          "origin",
+          "radius_km",
+          "skipped_long_queue",
+          "results"
+        ],
+        "title": "EatNowOut"
+      },
+      "Endpoint": {
+        "properties": {
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "Endpoint"
+      },
+      "ForecastHour": {
+        "properties": {
+          "hour": {
+            "type": "string",
+            "title": "Hour"
+          },
+          "planned_arrivals": {
+            "type": "integer",
+            "title": "Planned Arrivals"
+          },
+          "level": {
+            "type": "integer",
+            "title": "Level"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "queue_status": {
+            "type": "string",
+            "enum": [
+              "sepi",
+              "sedang",
+              "antre_panjang"
+            ],
+            "title": "Queue Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hour",
+          "planned_arrivals",
+          "level",
+          "label",
+          "queue_status"
+        ],
+        "title": "ForecastHour"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HourFactor": {
+        "properties": {
+          "hour": {
+            "type": "string",
+            "title": "Hour"
+          },
+          "factor": {
+            "type": "number",
+            "title": "Factor"
+          },
+          "minutes": {
+            "type": "number",
+            "title": "Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "hour",
+          "factor",
+          "minutes"
+        ],
+        "title": "HourFactor"
+      },
+      "LatLonOut": {
+        "properties": {
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "LatLonOut"
+      },
+      "LoginIn": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginIn"
+      },
+      "ModerateIn": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "rejected"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "ModerateIn"
+      },
+      "Origin": {
+        "properties": {
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat",
+            "examples": [
+              -6.9175
+            ]
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon",
+            "examples": [
+              107.6191
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "Origin"
+      },
+      "Parking": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "luas",
+              "sedang",
+              "terbatas",
+              "tidak_ada"
+            ],
+            "title": "Type",
+            "default": "sedang"
+          },
+          "capacity": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity"
+          },
+          "vehicle": {
+            "type": "string",
+            "enum": [
+              "mobil",
+              "motor"
+            ],
+            "title": "Vehicle",
+            "description": "mobil = muat mobil dan motor; motor = hanya motor",
+            "default": "mobil"
+          }
+        },
+        "type": "object",
+        "title": "Parking"
+      },
+      "PeakHours": {
+        "properties": {
+          "weekday": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Weekday",
+            "examples": [
+              [
+                [
+                  "11:00",
+                  "13:00"
+                ]
+              ]
+            ]
+          },
+          "weekend": {
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Weekend",
+            "examples": [
+              [
+                [
+                  "09:00",
+                  "12:00"
+                ],
+                [
+                  "15:00",
+                  "17:00"
+                ]
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "title": "PeakHours"
+      },
+      "PlaceCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "outdoor",
+              "indoor",
+              "landmark",
+              "kuliner"
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon"
+          },
+          "open_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "title": "Open Time",
+            "examples": [
+              "08:00"
+            ]
+          },
+          "close_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "title": "Close Time",
+            "examples": [
+              "17:00"
+            ]
+          },
+          "closed_days": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Closed Days",
+            "description": "0=Senin .. 6=Minggu"
+          },
+          "peak_hours": {
+            "$ref": "#/components/schemas/PeakHours"
+          },
+          "parking": {
+            "$ref": "#/components/schemas/Parking"
+          },
+          "rain_friendly": {
+            "type": "boolean",
+            "title": "Rain Friendly",
+            "default": false
+          },
+          "halal": {
+            "type": "boolean",
+            "title": "Halal",
+            "default": true
+          },
+          "avg_visit_minutes": {
+            "type": "integer",
+            "maximum": 720.0,
+            "minimum": 10.0,
+            "title": "Avg Visit Minutes",
+            "default": 60
+          },
+          "ticket_price": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Ticket Price",
+            "default": 0
+          },
+          "food_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "makanan_berat",
+                  "jajanan",
+                  "kafe",
+                  "oleh_oleh",
+                  "sentra_kuliner"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Food Type",
+            "description": "hanya untuk kategori kuliner"
+          },
+          "price_level": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 4.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Level",
+            "description": "perkiraan per orang: 1 <25rb, 2 25-50rb, 3 50-100rb, 4 >100rb"
+          },
+          "signature_menu": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Signature Menu",
+            "description": "menu andalan"
+          },
+          "corridor_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corridor Slug"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[a-z0-9-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "manager_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Id",
+            "description": "Hanya admin yang boleh mengisi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "category",
+          "lat",
+          "lon",
+          "open_time",
+          "close_time"
+        ],
+        "title": "PlaceCreate"
+      },
+      "PlaceOut": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "outdoor",
+              "indoor",
+              "landmark",
+              "kuliner"
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon"
+          },
+          "open_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "title": "Open Time",
+            "examples": [
+              "08:00"
+            ]
+          },
+          "close_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "title": "Close Time",
+            "examples": [
+              "17:00"
+            ]
+          },
+          "closed_days": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Closed Days",
+            "description": "0=Senin .. 6=Minggu"
+          },
+          "peak_hours": {
+            "$ref": "#/components/schemas/PeakHours"
+          },
+          "parking": {
+            "$ref": "#/components/schemas/Parking"
+          },
+          "rain_friendly": {
+            "type": "boolean",
+            "title": "Rain Friendly",
+            "default": false
+          },
+          "halal": {
+            "type": "boolean",
+            "title": "Halal",
+            "default": true
+          },
+          "avg_visit_minutes": {
+            "type": "integer",
+            "maximum": 720.0,
+            "minimum": 10.0,
+            "title": "Avg Visit Minutes",
+            "default": 60
+          },
+          "ticket_price": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Ticket Price",
+            "default": 0
+          },
+          "food_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "makanan_berat",
+                  "jajanan",
+                  "kafe",
+                  "oleh_oleh",
+                  "sentra_kuliner"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Food Type",
+            "description": "hanya untuk kategori kuliner"
+          },
+          "price_level": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 4.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Level",
+            "description": "perkiraan per orang: 1 <25rb, 2 25-50rb, 3 50-100rb, 4 >100rb"
+          },
+          "signature_menu": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Signature Menu",
+            "description": "menu andalan"
+          },
+          "corridor_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corridor Slug"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "manager_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Id"
+          },
+          "is_open_now": {
+            "type": "boolean",
+            "title": "Is Open Now"
+          },
+          "is_peak_now": {
+            "type": "boolean",
+            "title": "Is Peak Now"
+          },
+          "open_late": {
+            "type": "boolean",
+            "title": "Open Late",
+            "description": "buka sampai >= 21.00"
+          },
+          "zone": {
+            "type": "string",
+            "enum": [
+              "utara",
+              "kota",
+              "selatan"
+            ],
+            "title": "Zone"
+          },
+          "peak_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Peak Hint",
+            "examples": [
+              "ramai pukul 12.00-13.00, disarankan datang 11.00"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "category",
+          "lat",
+          "lon",
+          "open_time",
+          "close_time",
+          "id",
+          "slug",
+          "is_open_now",
+          "is_peak_now",
+          "open_late",
+          "zone",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "PlaceOut"
+      },
+      "PlaceUpdate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "outdoor",
+                  "indoor",
+                  "landmark",
+                  "kuliner"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lon": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lon"
+          },
+          "open_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Open Time"
+          },
+          "close_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Close Time"
+          },
+          "closed_days": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed Days"
+          },
+          "peak_hours": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PeakHours"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "parking": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Parking"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rain_friendly": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rain Friendly"
+          },
+          "halal": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Halal"
+          },
+          "avg_visit_minutes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 720.0,
+                "minimum": 10.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Visit Minutes"
+          },
+          "ticket_price": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ticket Price"
+          },
+          "food_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "makanan_berat",
+                  "jajanan",
+                  "kafe",
+                  "oleh_oleh",
+                  "sentra_kuliner"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Food Type"
+          },
+          "price_level": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 4.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Level"
+          },
+          "signature_menu": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 10
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Signature Menu"
+          },
+          "corridor_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corridor Slug"
+          },
+          "manager_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Id",
+            "description": "Hanya admin"
+          }
+        },
+        "type": "object",
+        "title": "PlaceUpdate"
+      },
+      "PlanCreate": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Title",
+            "default": "Rencana satu hari"
+          },
+          "date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "title": "Date",
+            "examples": [
+              "2026-11-28"
+            ]
+          },
+          "start_time": {
+            "type": "string",
+            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+            "title": "Start Time",
+            "default": "08:00"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Origin"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PlanItemIn"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Items"
+          },
+          "options": {
+            "$ref": "#/components/schemas/PlanOptions"
+          },
+          "optimize": {
+            "type": "boolean",
+            "title": "Optimize",
+            "description": "true = langsung susun urutan terbaik",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "origin",
+          "items"
+        ],
+        "title": "PlanCreate"
+      },
+      "PlanItemIn": {
+        "properties": {
+          "place_id": {
+            "type": "integer",
+            "title": "Place Id"
+          },
+          "duration_minutes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 720.0,
+                "minimum": 10.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Minutes",
+            "description": "default = rata-rata lama kunjungan tempat"
+          },
+          "locked_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locked Time",
+            "description": "kunci tempat ini pada jam tertentu (mulai kunjungan)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "place_id"
+        ],
+        "title": "PlanItemIn"
+      },
+      "PlanListItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "start_time": {
+            "type": "string",
+            "title": "Start Time"
+          },
+          "item_count": {
+            "type": "integer",
+            "title": "Item Count"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "date",
+          "start_time",
+          "item_count",
+          "updated_at"
+        ],
+        "title": "PlanListItem"
+      },
+      "PlanOptions": {
+        "properties": {
+          "insert_lunch": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Insert Lunch",
+            "description": "sisipkan makan siang (11.00-13.30)"
+          },
+          "insert_snack": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Insert Snack",
+            "description": "sisipkan jajan sore (15.00-17.30)"
+          },
+          "halal_only": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Halal Only",
+            "description": "slot makan hanya dari tempat halal"
+          },
+          "price_max": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 4.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price Max",
+            "description": "batas price_level slot makan"
+          }
+        },
+        "type": "object",
+        "title": "PlanOptions"
+      },
+      "PlanOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "integer",
+            "title": "User Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "start_time": {
+            "type": "string",
+            "title": "Start Time"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Origin"
+          },
+          "options": {
+            "type": "object",
+            "title": "Options"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "schedule": {
+            "items": {
+              "$ref": "#/components/schemas/ScheduleItem"
+            },
+            "type": "array",
+            "title": "Schedule"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/Summary"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "description": "peringatan tingkat rencana, mis. kombinasi utara-selatan"
+          },
+          "departure": {
+            "$ref": "#/components/schemas/Departure"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/Suggestion"
+            },
+            "type": "array",
+            "title": "Suggestions"
+          },
+          "sources": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "title",
+          "date",
+          "start_time",
+          "origin",
+          "options",
+          "created_at",
+          "updated_at",
+          "schedule",
+          "summary",
+          "warnings",
+          "departure",
+          "suggestions",
+          "sources"
+        ],
+        "title": "PlanOut"
+      },
+      "PlanUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "origin": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Origin"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PlanItemIn"
+                },
+                "type": "array",
+                "maxItems": 10,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Items",
+            "description": "mengganti seluruh daftar kunjungan, urutan sesuai array"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PlanOptions"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "PlanUpdate"
+      },
+      "RegisterIn": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "title": "Email",
+            "examples": [
+              "budi@example.com"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Name"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "wisatawan",
+              "pengelola"
+            ],
+            "title": "Role",
+            "default": "wisatawan"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "name",
+          "password"
+        ],
+        "title": "RegisterIn"
+      },
+      "ReorderIn": {
+        "properties": {
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "optimize",
+              "manual"
+            ],
+            "title": "Strategy",
+            "default": "optimize"
+          },
+          "order": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order",
+            "description": "untuk manual: daftar item_id sesuai urutan baru"
+          },
+          "from_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Time",
+            "description": "susun ulang sisa hari mulai jam ini (item yang sudah lewat dikunci)"
+          },
+          "apply_alternatives": {
+            "type": "boolean",
+            "title": "Apply Alternatives",
+            "description": "ganti tempat yang kehujanan/antre panjang dengan alternatif teratas",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "ReorderIn"
+      },
+      "ReorderOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "integer",
+            "title": "User Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "start_time": {
+            "type": "string",
+            "title": "Start Time"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Origin"
+          },
+          "options": {
+            "type": "object",
+            "title": "Options"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "schedule": {
+            "items": {
+              "$ref": "#/components/schemas/ScheduleItem"
+            },
+            "type": "array",
+            "title": "Schedule"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/Summary"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "description": "peringatan tingkat rencana, mis. kombinasi utara-selatan"
+          },
+          "departure": {
+            "$ref": "#/components/schemas/Departure"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/Suggestion"
+            },
+            "type": "array",
+            "title": "Suggestions"
+          },
+          "sources": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Sources"
+          },
+          "before": {
+            "$ref": "#/components/schemas/Summary"
+          },
+          "changed": {
+            "type": "boolean",
+            "title": "Changed"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "title",
+          "date",
+          "start_time",
+          "origin",
+          "options",
+          "created_at",
+          "updated_at",
+          "schedule",
+          "summary",
+          "warnings",
+          "departure",
+          "suggestions",
+          "sources",
+          "before",
+          "changed",
+          "reasons"
+        ],
+        "title": "ReorderOut"
+      },
+      "ReportSummary": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "valid": {
+            "type": "integer",
+            "title": "Valid"
+          },
+          "flagged": {
+            "type": "integer",
+            "title": "Flagged"
+          },
+          "rejected": {
+            "type": "integer",
+            "title": "Rejected"
+          },
+          "avg_level": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Level"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count",
+          "valid",
+          "flagged",
+          "rejected"
+        ],
+        "title": "ReportSummary"
+      },
+      "RoleUpdate": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "wisatawan",
+              "pengelola",
+              "admin"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "RoleUpdate"
+      },
+      "ScheduleItem": {
+        "properties": {
+          "item_id": {
+            "type": "integer",
+            "title": "Item Id"
+          },
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "kunjungan",
+              "makan_siang",
+              "jajan_sore"
+            ],
+            "title": "Kind"
+          },
+          "locked_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locked Time"
+          },
+          "place_id": {
+            "type": "integer",
+            "title": "Place Id"
+          },
+          "place_name": {
+            "type": "string",
+            "title": "Place Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "zone": {
+            "type": "string",
+            "enum": [
+              "utara",
+              "kota",
+              "selatan"
+            ],
+            "title": "Zone"
+          },
+          "travel_minutes": {
+            "type": "number",
+            "title": "Travel Minutes"
+          },
+          "travel_confidence": {
+            "type": "string",
+            "enum": [
+              "rendah",
+              "sedang",
+              "tinggi"
+            ],
+            "title": "Travel Confidence"
+          },
+          "arrive_at": {
+            "type": "string",
+            "title": "Arrive At"
+          },
+          "start_visit_at": {
+            "type": "string",
+            "title": "Start Visit At"
+          },
+          "depart_at": {
+            "type": "string",
+            "title": "Depart At"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "wait_minutes": {
+            "type": "number",
+            "title": "Wait Minutes"
+          },
+          "crowd_estimate": {
+            "type": "integer",
+            "title": "Crowd Estimate"
+          },
+          "crowd_label": {
+            "type": "string",
+            "title": "Crowd Label"
+          },
+          "queue_status": {
+            "type": "string",
+            "enum": [
+              "sepi",
+              "sedang",
+              "antre_panjang"
+            ],
+            "title": "Queue Status"
+          },
+          "rain_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rain Mm"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_id",
+          "position",
+          "kind",
+          "place_id",
+          "place_name",
+          "category",
+          "zone",
+          "travel_minutes",
+          "travel_confidence",
+          "arrive_at",
+          "start_visit_at",
+          "depart_at",
+          "duration_minutes",
+          "wait_minutes",
+          "crowd_estimate",
+          "crowd_label",
+          "queue_status",
+          "warnings"
+        ],
+        "title": "ScheduleItem"
+      },
+      "Slot": {
+        "properties": {
+          "depart_at": {
+            "type": "string",
+            "title": "Depart At"
+          },
+          "arrive_at": {
+            "type": "string",
+            "title": "Arrive At"
+          },
+          "minutes": {
+            "type": "number",
+            "title": "Minutes"
+          },
+          "traffic_factor": {
+            "type": "number",
+            "title": "Traffic Factor"
+          },
+          "weather_factor": {
+            "type": "number",
+            "title": "Weather Factor"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": [
+              "rendah",
+              "sedang",
+              "tinggi"
+            ],
+            "title": "Confidence"
+          },
+          "on_time": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "On Time"
+          }
+        },
+        "type": "object",
+        "required": [
+          "depart_at",
+          "arrive_at",
+          "minutes",
+          "traffic_factor",
+          "weather_factor",
+          "confidence"
+        ],
+        "title": "Slot"
+      },
+      "Sources": {
+        "properties": {
+          "routing": {
+            "type": "string",
+            "title": "Routing"
+          },
+          "weather": {
+            "type": "string",
+            "title": "Weather"
+          }
+        },
+        "type": "object",
+        "required": [
+          "routing",
+          "weather"
+        ],
+        "title": "Sources"
+      },
+      "Suggestion": {
+        "properties": {
+          "item_id": {
+            "type": "integer",
+            "title": "Item Id"
+          },
+          "place_id": {
+            "type": "integer",
+            "title": "Place Id"
+          },
+          "place_name": {
+            "type": "string",
+            "title": "Place Name"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "hujan",
+              "antre_panjang",
+              "tutup"
+            ],
+            "title": "Reason"
+          },
+          "alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/Alternative"
+            },
+            "type": "array",
+            "title": "Alternatives"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_id",
+          "place_id",
+          "place_name",
+          "reason",
+          "alternatives"
+        ],
+        "title": "Suggestion"
+      },
+      "Summary": {
+        "properties": {
+          "end_at": {
+            "type": "string",
+            "title": "End At"
+          },
+          "total_travel_minutes": {
+            "type": "number",
+            "title": "Total Travel Minutes"
+          },
+          "total_wait_minutes": {
+            "type": "number",
+            "title": "Total Wait Minutes"
+          },
+          "warning_count": {
+            "type": "integer",
+            "title": "Warning Count"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "biaya total, makin kecil makin baik"
+          }
+        },
+        "type": "object",
+        "required": [
+          "end_at",
+          "total_travel_minutes",
+          "total_wait_minutes",
+          "warning_count",
+          "score"
+        ],
+        "title": "Summary"
+      },
+      "TimeRange": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "TimeRange"
+      },
+      "TokenOut": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "title": "Expires In"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "expires_in",
+          "user"
+        ],
+        "title": "TokenOut"
+      },
+      "TravelPrediction": {
+        "properties": {
+          "origin": {
+            "$ref": "#/components/schemas/Endpoint"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/Endpoint"
+          },
+          "distance_km": {
+            "type": "number",
+            "title": "Distance Km"
+          },
+          "free_flow_minutes": {
+            "type": "number",
+            "title": "Free Flow Minutes"
+          },
+          "traffic_factor": {
+            "type": "number",
+            "title": "Traffic Factor"
+          },
+          "weather_factor": {
+            "type": "number",
+            "title": "Weather Factor"
+          },
+          "predicted_minutes": {
+            "type": "number",
+            "title": "Predicted Minutes"
+          },
+          "depart_at": {
+            "type": "string",
+            "title": "Depart At"
+          },
+          "arrive_at": {
+            "type": "string",
+            "title": "Arrive At"
+          },
+          "corridors": {
+            "items": {
+              "$ref": "#/components/schemas/CorridorShare"
+            },
+            "type": "array",
+            "title": "Corridors"
+          },
+          "weather": {
+            "$ref": "#/components/schemas/WeatherInfo"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/Sources"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin",
+          "destination",
+          "distance_km",
+          "free_flow_minutes",
+          "traffic_factor",
+          "weather_factor",
+          "predicted_minutes",
+          "depart_at",
+          "arrive_at",
+          "corridors",
+          "weather",
+          "confidence",
+          "sources"
+        ],
+        "title": "TravelPrediction"
+      },
+      "UserOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "wisatawan",
+              "pengelola",
+              "admin"
+            ],
+            "title": "Role"
+          },
+          "verified": {
+            "type": "boolean",
+            "title": "Verified",
+            "description": "pengelola wajib diverifikasi admin sebelum mengelola tempat"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "name",
+          "role",
+          "verified",
+          "created_at"
+        ],
+        "title": "UserOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VerifyIn": {
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "title": "Verified",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "VerifyIn"
+      },
+      "VisitForecast": {
+        "properties": {
+          "place_id": {
+            "type": "integer",
+            "title": "Place Id"
+          },
+          "place_name": {
+            "type": "string",
+            "title": "Place Name"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "total_planned_arrivals": {
+            "type": "integer",
+            "title": "Total Planned Arrivals"
+          },
+          "busiest_hour": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Busiest Hour"
+          },
+          "hours": {
+            "items": {
+              "$ref": "#/components/schemas/ForecastHour"
+            },
+            "type": "array",
+            "title": "Hours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "place_id",
+          "place_name",
+          "date",
+          "total_planned_arrivals",
+          "hours"
+        ],
+        "title": "VisitForecast"
+      },
+      "WeatherInfo": {
+        "properties": {
+          "precipitation_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precipitation Mm"
+          },
+          "precipitation_probability": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precipitation Probability"
+          },
+          "rain_impact": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "tidak_ada",
+                  "ringan",
+                  "sedang",
+                  "lebat"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rain Impact"
+          }
+        },
+        "type": "object",
+        "title": "WeatherInfo"
+      },
+      "Window": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          },
+          "max_minutes": {
+            "type": "number",
+            "title": "Max Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "max_minutes"
+        ],
+        "title": "Window"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "description": "JWT dari POST /api/auth/login",
+        "scheme": "bearer"
+      },
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "description": "API key dari admin Bebas",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://bebas.stei.site",
+      "description": "Produksi (STB via Cloudflare Tunnel)"
+    },
+    {
+      "url": "http://localhost:8080",
+      "description": "Lokal lewat gateway Nginx"
+    },
+    {
+      "url": "http://localhost:8000",
+      "description": "Lokal uvicorn --reload"
+    }
+  ]
+}
