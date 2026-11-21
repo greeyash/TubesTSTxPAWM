@@ -173,3 +173,8 @@ def test_api_key_rate_limit(client, admin, monkeypatch):
     assert client.get("/api/public/corridors", headers=h).status_code == 200
     r = client.get("/api/public/corridors", headers=h)
     assert r.status_code == 429 and "Retry-After" in r.headers
+
+
+def test_api_root(client):
+    r = client.get("/api")
+    assert r.status_code == 200 and r.json()["docs"] == "/docs"

@@ -90,6 +90,19 @@ async def validation_error(_: Request, exc: RequestValidationError):
     return JSONResponse({"error": "VALIDATION_ERROR", "message": message, "details": details}, status_code=422)
 
 
+@app.get("/api", tags=["Health"], summary="Info service dan tautan dokumentasi")
+def api_root():
+    return {
+        "service": "bebas-core",
+        "version": VERSION,
+        "description": "Perencana wisata & kuliner Bandung berbasis prediksi kemacetan dan cuaca (K02, Tourism)",
+        "docs": "/docs",
+        "openapi": "/openapi.json",
+        "health": "/api/health",
+        "auth": "Bearer JWT (POST /api/auth/login) untuk pengguna; X-API-Key untuk /api/public/*",
+    }
+
+
 @app.get("/api/health", tags=["Health"], summary="Cek service hidup")
 def health():
     db_ok = True
