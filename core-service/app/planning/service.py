@@ -351,7 +351,8 @@ def simulate(ctx: Context, stops: Sequence[Stop], start: Optional[datetime] = No
                 "arrive_at": arrive.strftime("%H:%M"), "start_visit_at": start_visit.strftime("%H:%M"),
                 "depart_at": depart.strftime("%H:%M"), "duration_minutes": stop["duration_minutes"],
                 "wait_minutes": round(wait, 1), "crowd_estimate": level, "crowd_label": LABELS[level],
-                "queue_status": queue_status(level), "rain_mm": rain, "warnings": warnings,
+                "queue_status": queue_status(level), "rain_mm": rain,
+                "photo_url": (place.get("photo") or {}).get("url"), "warnings": warnings,
                 "_routing": est["sources"]["routing"],
             })
         t, pos = depart, here

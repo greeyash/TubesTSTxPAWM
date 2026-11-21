@@ -99,6 +99,7 @@ class ScheduleItem(BaseModel):
     crowd_label: str
     queue_status: Queue
     rain_mm: Optional[float] = None
+    photo_url: Optional[str] = None
     warnings: List[str]
 
 
@@ -183,6 +184,7 @@ class EatNowItem(BaseModel):
     peak_hint: Optional[str] = None
     closes_at: str
     open_late: bool
+    photo: Optional[Dict[str, Any]] = None
     confidence: Level
     routing: str
     score: float

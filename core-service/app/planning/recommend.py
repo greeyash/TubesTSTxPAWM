@@ -53,7 +53,7 @@ def eat_now(db: sqlite3.Connection, here: LatLon, at: datetime, radius_km: float
             "travel_minutes": est["predicted_minutes"], "traffic_status": ts,
             "queue_status": crowd["queue_status"], "crowd_label": crowd["label"], "crowd_source": crowd["source"],
             "parking": p["parking"], "peak_hint": p["peak_hint"], "closes_at": p["close_time"],
-            "open_late": p["open_late"], "confidence": est["confidence"]["level"],
+            "open_late": p["open_late"], "photo": p.get("photo"), "confidence": est["confidence"]["level"],
             "routing": est["sources"]["routing"], "score": round(s, 1),
         }
 
