@@ -22,7 +22,7 @@ def _place(db: sqlite3.Connection, place_id: int):
 
 
 @router.post("/places/{place_id}/crowd-reports", response_model=CrowdReportOut, status_code=status.HTTP_201_CREATED,
-             summary="Kirim laporan keramaian (divalidasi otomatis)")
+             summary="Kirim laporan keramaian")
 def report(place_id: int, body: CrowdReportIn, user: User = Depends(get_current_user),
            db: sqlite3.Connection = Depends(get_db)):
     place = _place(db, place_id)
@@ -38,7 +38,7 @@ def crowd_status(place_id: int, db: sqlite3.Connection = Depends(get_db)):
 
 
 @router.get("/places/{place_id}/crowd-reports", response_model=List[CrowdReportOut],
-            summary="Riwayat laporan (pengelola tempat / admin)")
+            summary="Riwayat laporan keramaian")
 def list_reports(place_id: int, limit: int = Query(50, ge=1, le=200),
                  user: User = Depends(require_roles("pengelola", "admin")), db: sqlite3.Connection = Depends(get_db)):
     place = _place(db, place_id)
@@ -47,7 +47,7 @@ def list_reports(place_id: int, limit: int = Query(50, ge=1, le=200),
     return service.list_reports(db, place_id, limit)
 
 
-@router.patch("/crowd-reports/{report_id}", response_model=CrowdReportOut, summary="Validasi/tolak laporan secara manual")
+@router.patch("/crowd-reports/{report_id}", response_model=CrowdReportOut, summary="Setujui atau tolak laporan")
 def moderate(report_id: int, body: ModerateIn, user: User = Depends(require_roles("pengelola", "admin")),
              db: sqlite3.Connection = Depends(get_db)):
     row = service.get_report(db, report_id)
@@ -73,6 +73,6 @@ def crowd_batch(raw_ids: str, db: sqlite3.Connection):
     return {"data": data, "missing_ids": missing}
 
 
-@router.get("/crowd", response_model=CrowdBatchOut, summary="Status keramaian banyak tempat sekaligus")
+@router.get("/crowd", response_model=CrowdBatchOut, summary="Status keramaian beberapa tempat")
 def crowd_many(place_ids: str = Query(..., description="mis. 1,2,3 (maks 50)"), db: sqlite3.Connection = Depends(get_db)):
     return crowd_batch(place_ids, db)

@@ -74,13 +74,13 @@ def corridor_factors(slug: str, day: Optional[date], db: sqlite3.Connection):
         raise HTTPException(e.code, str(e))
 
 
-@router.get("/corridors", response_model=List[CorridorOut], summary="Daftar koridor dan tabel faktor jam")
+@router.get("/corridors", response_model=List[CorridorOut], summary="Daftar koridor")
 def list_corridors(db: sqlite3.Connection = Depends(get_db)):
     return corridor_list(db)
 
 
 @router.get("/corridors/{slug}/factors", response_model=CorridorFactorsOut,
-            summary="Faktor jam satu koridor untuk tanggal tertentu")
+            summary="Faktor jam koridor")
 def get_corridor_factors(slug: str, date: Optional[date] = Query(None, description="YYYY-MM-DD, default hari ini"),
                          db: sqlite3.Connection = Depends(get_db)):
     return corridor_factors(slug, date, db)
@@ -98,7 +98,7 @@ def predict_travel_time(
 
 
 @router.get("/predict/departure-window", response_model=DepartureWindowOut,
-            summary="Jendela berangkat terbaik dalam rentang jam", dependencies=[Depends(get_current_user)])
+            summary="Jam berangkat terbaik", dependencies=[Depends(get_current_user)])
 def departure_window(
     pts: PointParams = Depends(),
     date: Optional[date] = Query(None, description="YYYY-MM-DD, default hari ini"),

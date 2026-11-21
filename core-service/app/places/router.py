@@ -15,7 +15,7 @@ def _raise(e: service.PlaceError):
     raise HTTPException(e.code, str(e))
 
 
-@router.get("", response_model=List[PlaceOut], summary="Daftar tempat (bisa difilter)")
+@router.get("", response_model=List[PlaceOut], summary="Daftar tempat")
 def list_places(
     category: Optional[Category] = None,
     rain_friendly: Optional[bool] = Query(None, description="true = cocok saat hujan"),
@@ -32,7 +32,7 @@ def list_places(
                                open_late, open_now)
 
 
-@router.get("/mine", response_model=List[PlaceOut], summary="Tempat yang saya kelola (pengelola)")
+@router.get("/mine", response_model=List[PlaceOut], summary="Tempat yang saya kelola")
 def my_places(user: User = Depends(require_manager), db: sqlite3.Connection = Depends(get_db)):
     return service.list_places(db, manager_id=user["id"])
 
@@ -45,7 +45,7 @@ def get_place(place_id: int, db: sqlite3.Connection = Depends(get_db)):
     return p
 
 
-@router.post("", response_model=PlaceOut, status_code=status.HTTP_201_CREATED, summary="Tambah tempat (pengelola/admin)")
+@router.post("", response_model=PlaceOut, status_code=status.HTTP_201_CREATED, summary="Tambah tempat")
 def create_place(body: PlaceCreate, user: User = Depends(require_manager),
                  db: sqlite3.Connection = Depends(get_db)):
     data = body.model_dump()
@@ -57,7 +57,7 @@ def create_place(body: PlaceCreate, user: User = Depends(require_manager),
         _raise(e)
 
 
-@router.patch("/{place_id}", response_model=PlaceOut, summary="Ubah tempat (pengelola tempat itu / admin)")
+@router.patch("/{place_id}", response_model=PlaceOut, summary="Ubah tempat")
 def update_place(place_id: int, body: PlaceUpdate, user: User = Depends(require_manager),
                  db: sqlite3.Connection = Depends(get_db)):
     try:

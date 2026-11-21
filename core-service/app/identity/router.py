@@ -14,7 +14,7 @@ admin_only = require_roles("admin")
 
 
 @router.post("/auth/register", response_model=UserOut, status_code=status.HTTP_201_CREATED,
-             summary="Daftar akun wisatawan atau pengelola")
+             summary="Daftar akun")
 def register(body: RegisterIn, db: sqlite3.Connection = Depends(get_db)):
     try:
         return service.create_user(db, body.email, body.name, body.password, body.role)
@@ -50,7 +50,7 @@ def set_role(user_id: int, body: RoleUpdate, _: User = Depends(admin_only), db: 
 
 
 @router.patch("/admin/users/{user_id}/verify", response_model=UserOut, tags=["Admin"],
-              summary="Verifikasi akun pengelola / UMKM")
+              summary="Verifikasi akun pengelola")
 def verify_user(user_id: int, body: VerifyIn, _: User = Depends(admin_only), db: sqlite3.Connection = Depends(get_db)):
     user = service.set_verified(db, user_id, body.verified)
     if not user:
@@ -59,7 +59,7 @@ def verify_user(user_id: int, body: VerifyIn, _: User = Depends(admin_only), db:
 
 
 @router.post("/admin/api-keys", response_model=ApiKeyCreated, status_code=status.HTTP_201_CREATED, tags=["Admin"],
-             summary="Buat API key untuk kelompok lain (kunci hanya tampil sekali)")
+             summary="Buat API key")
 def create_key(body: ApiKeyCreate, admin: User = Depends(admin_only), db: sqlite3.Connection = Depends(get_db)):
     return service.create_api_key(db, body.client_name, admin["id"])
 

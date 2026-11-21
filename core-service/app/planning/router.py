@@ -25,7 +25,7 @@ def _call(fn, *args):
 
 
 @router.post("/plans", response_model=PlanOut, status_code=status.HTTP_201_CREATED,
-             summary="Buat rencana satu hari (opsional sisipkan makan siang / jajan sore)")
+             summary="Buat rencana satu hari")
 def create_plan(body: PlanCreate, user: User = Depends(get_current_user), db: sqlite3.Connection = Depends(get_db)):
     data = body.model_dump()
     data["options"] = {k: v for k, v in data["options"].items() if v is not None}
@@ -39,14 +39,14 @@ def list_plans(user: User = Depends(get_current_user), db: sqlite3.Connection = 
 
 
 @router.get("/plans/{plan_id}", response_model=PlanOut,
-            summary="Lihat rencana: jadwal, peringatan, jam berangkat terbaik, dan alternatif")
+            summary="Detail rencana dan jadwal")
 def get_plan(plan_id: int, user: User = Depends(get_current_user), db: sqlite3.Connection = Depends(get_db)):
     _call(service.require_access, db, plan_id, user)
     return service.build_plan_out(db, plan_id)
 
 
 @router.patch("/plans/{plan_id}", response_model=PlanOut,
-              summary="Ubah rencana (judul, tanggal, jam mulai, asal, daftar tempat, opsi slot makan)")
+              summary="Ubah rencana")
 def update_plan(plan_id: int, body: PlanUpdate, user: User = Depends(get_current_user),
                 db: sqlite3.Connection = Depends(get_db)):
     _call(service.require_access, db, plan_id, user)
@@ -55,7 +55,7 @@ def update_plan(plan_id: int, body: PlanUpdate, user: User = Depends(get_current
 
 
 @router.post("/plans/{plan_id}/reorder", response_model=ReorderOut,
-             summary="Susun ulang urutan kunjungan (opsional ganti tempat yang kehujanan/antre panjang)")
+             summary="Susun ulang urutan kunjungan")
 def reorder(plan_id: int, body: ReorderIn, user: User = Depends(get_current_user),
             db: sqlite3.Connection = Depends(get_db)):
     _call(service.require_access, db, plan_id, user)
@@ -119,21 +119,21 @@ def forecast_batch(raw_ids: str, day: Optional[date], db: sqlite3.Connection):
 
 
 @router.get("/visit-forecast", response_model=VisitForecastBatch,
-            summary="Prediksi kepadatan kunjungan untuk banyak tempat sekaligus")
+            summary="Prediksi kepadatan beberapa tempat")
 def visit_forecast_many(place_ids: str = Query(..., description="mis. 1,2,3 (maks 20)"),
                         date: Optional[date] = Query(None), db: sqlite3.Connection = Depends(get_db)):
     return forecast_batch(place_ids, date, db)
 
 
 @router.get("/places/{place_id}/visit-forecast", response_model=VisitForecast,
-            summary="Prediksi kepadatan kunjungan per jam (dari itinerary tersimpan + jam ramai)")
+            summary="Prediksi kepadatan per jam")
 def visit_forecast(place_id: int, date: Optional[date] = Query(None, description="YYYY-MM-DD, default hari ini"),
                    db: sqlite3.Connection = Depends(get_db)):
     return forecast_for(place_id, date, db)
 
 
 @router.get("/places/{place_id}/dashboard", response_model=Dashboard,
-            summary="Dashboard pengelola: perkiraan kedatangan dan ringkasan laporan hari ini")
+            summary="Dashboard pengelola")
 def dashboard(place_id: int, date: Optional[date] = Query(None), user: User = Depends(require_manager),
               db: sqlite3.Connection = Depends(get_db)):
     p = get_place(db, place_id)

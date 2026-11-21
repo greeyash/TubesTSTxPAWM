@@ -33,7 +33,7 @@ class PlacePage(BaseModel):
 router = APIRouter(prefix="/api/public", tags=["Public (X-API-Key)"], dependencies=[Depends(require_api_key)])
 
 
-@router.get("/places", response_model=PlacePage, summary="Daftar tempat (paginasi ?page&limit)")
+@router.get("/places", response_model=PlacePage, summary="Daftar tempat")
 def list_places(
     category: Optional[Category] = None,
     rain_friendly: Optional[bool] = None,
@@ -96,25 +96,25 @@ def departure_window(
     return pred.window(pts, date, earliest, latest, step, arrive_by, db)
 
 
-@router.get("/crowd", response_model=CrowdBatchOut, summary="Status keramaian banyak tempat (?ids=1,2,3)")
+@router.get("/crowd", response_model=CrowdBatchOut, summary="Status keramaian beberapa tempat")
 def crowd_many(ids: str = Query(..., description="maks 50"), db: sqlite3.Connection = Depends(get_db)):
     return crowd_r.crowd_batch(ids, db)
 
 
 @router.get("/visit-forecast", response_model=VisitForecastBatch,
-            summary="Prediksi kepadatan banyak tempat (?ids=1,2,3&date=)")
+            summary="Prediksi kepadatan beberapa tempat")
 def visit_forecast_many(ids: str = Query(..., description="maks 20"), date: Optional[date] = Query(None),
                         db: sqlite3.Connection = Depends(get_db)):
     return plan.forecast_batch(ids, date, db)
 
 
 @router.get("/places/{place_id}/visit-forecast", response_model=VisitForecast,
-            summary="Prediksi kepadatan kunjungan per jam (Open Host Service)")
+            summary="Prediksi kepadatan per jam")
 def visit_forecast(place_id: int, date: Optional[date] = Query(None), db: sqlite3.Connection = Depends(get_db)):
     return plan.forecast_for(place_id, date, db)
 
 
-@router.get("/eat-now", response_model=EatNowOut, summary='Tempat makan terdekat yang tidak macet dan tidak antre')
+@router.get("/eat-now", response_model=EatNowOut, summary='Tempat makan terdekat')
 def eat_now(
     lat: float = Query(...),
     lon: float = Query(...),
@@ -132,7 +132,7 @@ def eat_now(
                               include_long_queue, limit, db)
 
 
-@router.get("/feed", summary="Feed event (format bersama): TempatDiperbarui, StatusAntreanBerubah")
+@router.get("/feed", summary="Feed perubahan data")
 def events_feed(since: int = Query(0, ge=0), limit: int = Query(50, ge=1, le=200),
                 db: sqlite3.Connection = Depends(get_db)):
     return feed(db, since, limit)
