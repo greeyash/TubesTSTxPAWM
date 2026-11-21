@@ -1,0 +1,91 @@
+{
+  "_catatan": "Faktor jam = pengali waktu tempuh terhadap kondisi lancar. Indeks 0..23 = jam 00.00..23.00 WIB. Nilai masih perkiraan [Menebak], perbarui setelah ada data lapangan.",
+  "default_profile": {
+    "name": "Jalan kota umum (di luar koridor)",
+    "base_speed_kmh": 30,
+    "factors": {
+      "weekday": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.3, 1.25, 1.1, 1.05, 1.1, 1.15, 1.1, 1.05, 1.1, 1.25, 1.35, 1.25, 1.1, 1.05, 1.0, 1.0, 1.0],
+      "weekend": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.05, 1.1, 1.2, 1.25, 1.25, 1.25, 1.2, 1.2, 1.2, 1.25, 1.3, 1.3, 1.25, 1.15, 1.1, 1.0, 1.0]
+    }
+  },
+  "corridors": [
+    {
+      "slug": "setiabudi-lembang",
+      "name": "Setiabudi - Lembang",
+      "start": {"lat": -6.8605, "lon": 107.5945},
+      "end": {"lat": -6.8117, "lon": 107.6178},
+      "length_km": 8.2,
+      "base_speed_kmh": 35,
+      "notes": "Jalur utama ke Lembang. Akhir pekan padat pagi menjelang siang dan sore saat wisatawan pulang.",
+      "factors": {
+        "weekday": [1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.3, 1.5, 1.4, 1.2, 1.1, 1.1, 1.2, 1.2, 1.2, 1.3, 1.5, 1.6, 1.4, 1.2, 1.1, 1.0, 1.0, 1.0],
+        "weekend": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.4, 1.6, 1.8, 1.8, 1.7, 1.5, 1.6, 1.8, 1.9, 1.9, 1.7, 1.5, 1.3, 1.2, 1.1, 1.0]
+      }
+    },
+    {
+      "slug": "dago-dago-pakar",
+      "name": "Dago - Dago Pakar",
+      "start": {"lat": -6.8850, "lon": 107.6135},
+      "end": {"lat": -6.8566, "lon": 107.6302},
+      "length_km": 4.6,
+      "base_speed_kmh": 30,
+      "notes": "Minggu pagi ada Car Free Day di Dago bawah (06.00-10.00), lalu lintas dialihkan.",
+      "factors": {
+        "weekday": [1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.3, 1.6, 1.4, 1.2, 1.1, 1.1, 1.2, 1.2, 1.1, 1.2, 1.4, 1.6, 1.4, 1.2, 1.1, 1.0, 1.0, 1.0],
+        "weekend": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.3, 1.5, 1.6, 1.6, 1.5, 1.5, 1.4, 1.4, 1.5, 1.6, 1.6, 1.5, 1.4, 1.3, 1.2, 1.1, 1.0]
+      }
+    },
+    {
+      "slug": "soreang-ciwidey",
+      "name": "Soreang - Ciwidey",
+      "start": {"lat": -7.0290, "lon": 107.5250},
+      "end": {"lat": -7.0995, "lon": 107.4400},
+      "length_km": 18.5,
+      "base_speed_kmh": 40,
+      "notes": "Akses ke Kawah Putih, Situ Patenggang, Rancabali. Pasar Ciwidey menyempit pagi hari.",
+      "factors": {
+        "weekday": [1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 1.4, 1.4, 1.2, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.2, 1.3, 1.3, 1.2, 1.1, 1.0, 1.0, 1.0, 1.0],
+        "weekend": [1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 1.5, 1.7, 1.7, 1.5, 1.3, 1.2, 1.2, 1.3, 1.5, 1.7, 1.6, 1.4, 1.2, 1.1, 1.0, 1.0, 1.0]
+      }
+    },
+    {
+      "slug": "asia-afrika-braga",
+      "name": "Asia Afrika - Braga",
+      "start": {"lat": -6.9218, "lon": 107.6070},
+      "end": {"lat": -6.9145, "lon": 107.6095},
+      "length_km": 1.3,
+      "base_speed_kmh": 18,
+      "notes": "Pusat kota. Malam akhir pekan sangat padat, sebagian ruas Braga kadang ditutup untuk pejalan kaki.",
+      "factors": {
+        "weekday": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.5, 1.4, 1.3, 1.2, 1.3, 1.4, 1.3, 1.2, 1.3, 1.5, 1.7, 1.6, 1.5, 1.4, 1.3, 1.1, 1.0],
+        "weekend": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.5, 1.5, 1.5, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 1.9, 1.7, 1.4, 1.1]
+      }
+    },
+    {
+      "slug": "burangrang-cihapit",
+      "name": "Burangrang - Cihapit",
+      "start": {"lat": -6.9265, "lon": 107.6265},
+      "end": {"lat": -6.9050, "lon": 107.6250},
+      "length_km": 2.8,
+      "base_speed_kmh": 22,
+      "notes": "Kawasan kuliner dan factory outlet. Padat jam makan siang.",
+      "factors": {
+        "weekday": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.5, 1.4, 1.2, 1.2, 1.3, 1.5, 1.4, 1.2, 1.2, 1.4, 1.6, 1.4, 1.3, 1.2, 1.1, 1.0, 1.0],
+        "weekend": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.3, 1.5, 1.6, 1.7, 1.8, 1.7, 1.6, 1.6, 1.7, 1.7, 1.6, 1.5, 1.3, 1.2, 1.1, 1.0]
+      }
+    },
+    {
+      "slug": "dipati-ukur",
+      "name": "Dipati Ukur",
+      "start": {"lat": -6.9000, "lon": 107.6180},
+      "end": {"lat": -6.8865, "lon": 107.6155},
+      "length_km": 1.8,
+      "base_speed_kmh": 20,
+      "notes": "Kawasan kampus dan jajanan. Padat jam masuk kuliah dan malam hari.",
+      "factors": {
+        "weekday": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.6, 1.5, 1.3, 1.3, 1.4, 1.6, 1.5, 1.3, 1.4, 1.6, 1.7, 1.6, 1.5, 1.4, 1.2, 1.1, 1.0],
+        "weekend": [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.3, 1.4, 1.3, 1.3, 1.4, 1.5, 1.4, 1.3, 1.3, 1.4, 1.5, 1.6, 1.6, 1.5, 1.3, 1.1, 1.0]
+      }
+    }
+  ]
+}
