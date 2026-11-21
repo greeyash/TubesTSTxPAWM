@@ -163,5 +163,5 @@ def test_public_new_endpoints(client, admin):
     h = {"X-API-Key": key}
     assert client.get("/api/public/places/1/visit-forecast", headers=h).status_code == 200
     assert client.get("/api/public/eat-now", params={"lat": -6.9, "lon": 107.62}, headers=h).status_code == 200
-    ev = client.get("/api/public/events", headers=h).json()
-    assert all(e["type"] != "RencanaBerubah" for e in ev)
+    ev = client.get("/api/public/feed", headers=h).json()
+    assert all(e["type"] != "RencanaBerubah" for e in ev["events"])

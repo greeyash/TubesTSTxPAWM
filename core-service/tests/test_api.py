@@ -148,7 +148,8 @@ def test_public_api_key(client, admin, tourist):
     r = client.post("/api/admin/api-keys", json={"client_name": "K03"}, headers=admin)
     key = r.json()["api_key"]
     h = {"X-API-Key": key}
-    assert len(client.get("/api/public/places", headers=h).json()) >= 25
+    page = client.get("/api/public/places", headers=h).json()
+    assert page["total"] >= 25 and page["page"] == 1 and len(page["data"]) == 20
     assert client.get("/api/public/places/1/crowd", headers=h).status_code == 200
     r = client.get("/api/public/predict/travel-time", headers=h, params={"from_place_id": 1, "to_place_id": 2})
     assert r.status_code == 200
