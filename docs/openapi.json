@@ -6,6 +6,25 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Info service dan tautan dokumentasi",
+        "operationId": "api_root_api_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/health": {
       "get": {
         "tags": [

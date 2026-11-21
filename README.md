@@ -3,7 +3,7 @@
 Core service untuk **Sistem Perencanaan Perjalanan Wisata dan Kuliner Berbasis Prediksi Kemacetan dan Cuaca di Kota Bandung**. Layanan ini menjawab tiga pertanyaan: kapan sebaiknya berangkat, ke mana lebih dulu, dan di mana makan tanpa terjebak macet atau antrean.
 
 - Base URL: `https://bebas.stei.site/api`
-- Dokumentasi interaktif: `https://bebas.stei.site/docs` (OpenAPI di `/openapi.json`, bisa diimpor ke Postman)
+- Dokumentasi interaktif: `https://bebas.stei.site/api/docs` (OpenAPI di `/api/openapi.json`, bisa diimpor ke Postman)
 - Auth: `Authorization: Bearer <JWT>` untuk pengguna aplikasi, `X-API-Key: <kunci>` untuk kelompok lain (`/api/public/*`)
 
 ## Kesesuaian dengan makalah (Tugas 1)
@@ -130,7 +130,7 @@ cd core-service
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 ADMIN_EMAIL=admin@local.test ADMIN_PASSWORD=admin12345 uvicorn app.main:app --reload
-# buka http://localhost:8000/docs
+# buka http://localhost:8000/api/docs
 pytest -q          # tes otomatis (tanpa jaringan)
 ```
 
@@ -150,10 +150,22 @@ Setiap kontainer punya `mem_limit`, `cpus`, `restart: unless-stopped`, dan rotas
 |---|---|---|
 | Kapan dipakai | `sudo systemctl status cloudflared` sudah *active (running)* | cloudflared belum terpasang di STB |
 | `.env` | tidak perlu apa-apa | `COMPOSE_PROFILES=tunnel` dan `TUNNEL_TOKEN=...` |
-| Public Hostname (tunnel `k02-bebas`) | `bebas` · `stei.site` · HTTP · **`localhost:8080`** | `bebas` · `stei.site` · HTTP · **`gateway:80`** |
+| Public Hostname (tunnel `k02-bebas`) | `bebas` · `stei.site` · Path kosong · HTTP · **`127.0.0.1:8080`** | `bebas` · `stei.site` · HTTP · **`gateway:80`** |
 | Cek | `curl https://bebas.stei.site/api/health` | `docker compose logs tunnel \| tail -3`, lalu curl yang sama |
 
 Jangan memakai keduanya sekaligus. Token tunnel hanya disimpan di `.env` STB, tidak pernah di-commit.
+
+Pakai `127.0.0.1`, bukan `localhost`. cloudflared bisa mencoba `localhost` lewat IPv6 (`::1`), padahal gateway hanya mendengarkan di IPv4, sehingga hasilnya 502.
+
+Kalau Public Hostname terlanjur dibuat dengan Path `api` yang mengarah ke `localhost:80`, service tetap bisa jalan tanpa mengubah dashboard. Buat file `docker-compose.override.yml` di STB (jangan di-commit) dengan isi berikut, lalu jalankan `docker compose up -d`:
+
+```yaml
+services:
+  gateway:
+    ports: ["127.0.0.1:80:80", "[::1]:80:80"]
+```
+
+Seluruh API dan dokumentasi (`/api/docs`) ada di bawah `/api`, jadi tetap terjangkau lewat aturan itu.
 
 ### Operasional STB
 - Backup: `sh scripts/backup.sh` menyalin database ke `data/backups/` tanpa mematikan service, dan menyimpan 14 backup terakhir. Contoh jadwal cron ada di dalam skrip.
@@ -179,7 +191,7 @@ API key hanya tampil sekali saat dibuat. Server hanya menyimpan hash SHA-256-nya
 | Hal | Ketentuan |
 |---|---|
 | Base URL | `https://bebas.stei.site/api` |
-| Dokumentasi | Swagger `https://bebas.stei.site/docs`, kontrak `docs/openapi.json` di repo |
+| Dokumentasi | Swagger `https://bebas.stei.site/api/docs`, kontrak `docs/openapi.json` di repo |
 | Auth | Header `X-API-Key` untuk semua `/api/public/*`. Satu kunci per kelompok, bisa dicabut kalau disalahgunakan |
 | Cara minta akses | Hubungi admin Bebas (kontak di entri API Registry), sebutkan nama kelompok. Kalian akan menerima API key dan satu akun uji wisatawan |
 | Endpoint yang ditawarkan | `places` (paginasi `?page&limit` → `{"data","page","limit","total"}`), `places/{id}`, `places/{id}/crowd`, `places/{id}/visit-forecast`, batch `crowd?ids=` dan `visit-forecast?ids=`, `corridors`, `predict/travel-time`, `predict/departure-window`, `eat-now`, `feed?since=` |
@@ -226,7 +238,7 @@ Ketahanan: timeout 5 detik, retry 1×, katalog K1 di-cache utuh, dan rating di-c
 
 - [x] Microservice FastAPI + SQLite, Docker dengan `mem_limit` dan `cpus` di setiap kontainer
 - [x] Gateway Nginx dengan rate limit, auth JWT + API key (bonus auth & authorization)
-- [x] `/api/health`, Swagger `/docs`, kontrak `docs/openapi.json`
+- [x] `/api/health`, Swagger `/api/docs`, kontrak `docs/openapi.json`
 - [x] Seed 6 koridor dan 33 tempat, tes otomatis (`pytest -q`)
 - [ ] Deploy ke STB dan tunnel `https://bebas.stei.site/api/health` menjawab 200
 - [ ] Akun admin, akun uji wisatawan dan pengelola, API key per kelompok pemakai
