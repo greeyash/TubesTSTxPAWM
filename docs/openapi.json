@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Bebas Core Service",
-    "description": "\nCore service kelompok **Bebas** (K02, tema Tourism).\n\n**Autentikasi**\n* Pengguna aplikasi: `POST /api/auth/login` lalu kirim `Authorization: Bearer <token>`.\n  Peran: `wisatawan`, `pengelola`, `admin`.\n* Kelompok lain: endpoint `/api/public/*` dengan header `X-API-Key: <kunci>`. Minta kunci ke admin Bebas.\n\n**Bounded context** (nama di makalah → folder):\nIdentitas & Akses → `identity`, Katalog Tempat → `places`, Keramaian & Antrean → `crowd`,\nPrediksi Kondisi Perjalanan → `prediction`, Perencanaan Perjalanan → `planning`.\nNotifikasi Perjalanan dikerjakan di Tugas 3; event-nya sudah diterbitkan di `/api/events`.\n\nWaktu memakai WIB (UTC+7).\n",
+    "description": "\nCore service kelompok **Bebas** (K02, tema Tourism).\n\n**Autentikasi**\n* Pengguna aplikasi: `POST /api/auth/login` lalu kirim `Authorization: Bearer <token>`.\n  Peran: `wisatawan`, `pengelola`, `admin`.\n* Kelompok lain (server ke server): endpoint `/api/public/*` dengan header `X-API-Key: <kunci>`.\n* Data non-pribadi (katalog, keramaian, prediksi kepadatan, feed) juga terbuka tanpa kunci, dibatasi rate limit,\n  supaya aplikasi kelompok lain tidak perlu menyimpan API key di APK.\n\n**Format error**: `{\"error\": \"KODE_ERROR\", \"message\": \"...\"}` (400/401/403/404/409/422/429/503).\n\n**Bounded context** (nama di makalah → folder):\nIdentitas & Akses → `identity`, Katalog Tempat → `places`, Keramaian & Antrean → `crowd`,\nPrediksi Kondisi Perjalanan → `prediction`, Perencanaan Perjalanan → `planning`.\nNotifikasi Perjalanan dikerjakan di Tugas 3; event-nya sudah diterbitkan di `/api/events`.\n\nWaktu memakai WIB (UTC+7).\n",
     "version": "0.1.0"
   },
   "paths": {
@@ -19,6 +19,62 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/feed": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Feed event publik (format bersama Jelajah Nusantara)",
+        "operationId": "public_feed_api_feed_get",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "seq terakhir yang sudah diproses",
+              "default": 0,
+              "title": "Since"
+            },
+            "description": "seq terakhir yang sudah diproses"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -1072,6 +1128,50 @@
         }
       }
     },
+    "/api/crowd": {
+      "get": {
+        "tags": [
+          "Crowd"
+        ],
+        "summary": "Status keramaian banyak tempat sekaligus",
+        "operationId": "crowd_many_api_crowd_get",
+        "parameters": [
+          {
+            "name": "place_ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "mis. 1,2,3 (maks 50)",
+              "title": "Place Ids"
+            },
+            "description": "mis. 1,2,3 (maks 50)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrowdBatchOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/corridors": {
       "get": {
         "tags": [
@@ -2017,6 +2117,67 @@
         }
       }
     },
+    "/api/visit-forecast": {
+      "get": {
+        "tags": [
+          "Planning"
+        ],
+        "summary": "Prediksi kepadatan kunjungan untuk banyak tempat sekaligus",
+        "operationId": "visit_forecast_many_api_visit_forecast_get",
+        "parameters": [
+          {
+            "name": "place_ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "mis. 1,2,3 (maks 20)",
+              "title": "Place Ids"
+            },
+            "description": "mis. 1,2,3 (maks 20)"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitForecastBatch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/places/{place_id}/visit-forecast": {
       "get": {
         "tags": [
@@ -2147,7 +2308,7 @@
         "tags": [
           "Public (X-API-Key)"
         ],
-        "summary": "Daftar tempat",
+        "summary": "Daftar tempat (paginasi ?page&limit)",
         "operationId": "list_places_api_public_places_get",
         "security": [
           {
@@ -2298,6 +2459,29 @@
               ],
               "title": "Open Now"
             }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
           }
         ],
         "responses": {
@@ -2306,11 +2490,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PlaceOut"
-                  },
-                  "title": "Response List Places Api Public Places Get"
+                  "$ref": "#/components/schemas/PlacePage"
                 }
               }
             }
@@ -2839,6 +3019,121 @@
         }
       }
     },
+    "/api/public/crowd": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Status keramaian banyak tempat (?ids=1,2,3)",
+        "operationId": "crowd_many_api_public_crowd_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "maks 50",
+              "title": "Ids"
+            },
+            "description": "maks 50"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrowdBatchOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/public/visit-forecast": {
+      "get": {
+        "tags": [
+          "Public (X-API-Key)"
+        ],
+        "summary": "Prediksi kepadatan banyak tempat (?ids=1,2,3&date=)",
+        "operationId": "visit_forecast_many_api_public_visit_forecast_get",
+        "security": [
+          {
+            "APIKeyHeader": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "maks 20",
+              "title": "Ids"
+            },
+            "description": "maks 20"
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitForecastBatch"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/public/places/{place_id}/visit-forecast": {
       "get": {
         "tags": [
@@ -3083,13 +3378,13 @@
         }
       }
     },
-    "/api/public/events": {
+    "/api/public/feed": {
       "get": {
         "tags": [
           "Public (X-API-Key)"
         ],
-        "summary": "Domain event (Published Language): TempatDiperbarui, StatusAntreanBerubah",
-        "operationId": "events_api_public_events_get",
+        "summary": "Feed event (format bersama): TempatDiperbarui, StatusAntreanBerubah",
+        "operationId": "events_feed_api_public_feed_get",
         "security": [
           {
             "APIKeyHeader": []
@@ -3097,17 +3392,15 @@
         ],
         "parameters": [
           {
-            "name": "after",
+            "name": "since",
             "in": "query",
             "required": false,
             "schema": {
               "type": "integer",
               "minimum": 0,
-              "description": "ambil event dengan id > after",
               "default": 0,
-              "title": "After"
-            },
-            "description": "ambil event dengan id > after"
+              "title": "Since"
+            }
           },
           {
             "name": "limit",
@@ -3115,9 +3408,9 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "maximum": 500,
+              "maximum": 200,
               "minimum": 1,
-              "default": 100,
+              "default": 50,
               "title": "Limit"
             }
           }
@@ -3454,6 +3747,30 @@
           "factor"
         ],
         "title": "CorridorShare"
+      },
+      "CrowdBatchOut": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/CrowdStatusOut"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "missing_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Missing Ids",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "data"
+        ],
+        "title": "CrowdBatchOut"
       },
       "CrowdReportIn": {
         "properties": {
@@ -4005,6 +4322,103 @@
           "lon"
         ],
         "title": "Endpoint"
+      },
+      "ExternalPlace": {
+        "properties": {
+          "destination_id": {
+            "type": "string",
+            "pattern": "^[a-z]{2,6}_[A-Za-z0-9_-]{1,40}$",
+            "title": "Destination Id",
+            "examples": [
+              "dst_12"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "examples": [
+              "Curug Citambur"
+            ]
+          },
+          "lat": {
+            "type": "number",
+            "maximum": 6.5,
+            "minimum": -11.5,
+            "title": "Lat",
+            "description": "dalam wilayah Indonesia"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 141.5,
+            "minimum": 94.5,
+            "title": "Lon"
+          },
+          "opening_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Opening Hours",
+            "examples": [
+              "07:00-16:00"
+            ]
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category",
+            "description": "kategori versi sumber; diterjemahkan ke outdoor/indoor/landmark/kuliner",
+            "examples": [
+              "curug"
+            ]
+          },
+          "rain_friendly": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rain Friendly"
+          },
+          "captured_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Captured At",
+            "examples": [
+              "2026-11-20T08:00:00Z"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "destination_id",
+          "name",
+          "lat",
+          "lon"
+        ],
+        "title": "ExternalPlace",
+        "description": "Snapshot destinasi kelompok lain (mis. Jelajah Nusantara K1). Disimpan apa adanya + waktu pengambilan."
       },
       "ForecastHour": {
         "properties": {
@@ -4685,6 +5099,37 @@
         ],
         "title": "PlaceOut"
       },
+      "PlacePage": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/PlaceOut"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "page",
+          "limit",
+          "total"
+        ],
+        "title": "PlacePage"
+      },
       "PlaceUpdate": {
         "properties": {
           "name": {
@@ -4998,8 +5443,27 @@
       "PlanItemIn": {
         "properties": {
           "place_id": {
-            "type": "integer",
-            "title": "Place Id"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Place Id",
+            "description": "tempat dari katalog Bebas"
+          },
+          "external": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExternalPlace"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "atau destinasi kelompok lain (snapshot)"
           },
           "duration_minutes": {
             "anyOf": [
@@ -5030,9 +5494,6 @@
           }
         },
         "type": "object",
-        "required": [
-          "place_id"
-        ],
         "title": "PlanItemIn"
       },
       "PlanListItem": {
@@ -5587,8 +6048,27 @@
             "title": "Locked Time"
           },
           "place_id": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Place Id"
+          },
+          "external_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Ref",
+            "description": "ID destinasi kelompok lain, mis. dst_12"
           },
           "place_name": {
             "type": "string",
@@ -5681,7 +6161,6 @@
           "item_id",
           "position",
           "kind",
-          "place_id",
           "place_name",
           "category",
           "zone",
@@ -5778,8 +6257,26 @@
             "title": "Item Id"
           },
           "place_id": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Place Id"
+          },
+          "external_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Ref"
           },
           "place_name": {
             "type": "string",
@@ -5805,7 +6302,6 @@
         "type": "object",
         "required": [
           "item_id",
-          "place_id",
           "place_name",
           "reason",
           "alternatives"
@@ -6096,6 +6592,35 @@
           "hours"
         ],
         "title": "VisitForecast"
+      },
+      "VisitForecastBatch": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/VisitForecast"
+            },
+            "type": "array",
+            "title": "Data"
+          },
+          "missing_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Missing Ids",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "data"
+        ],
+        "title": "VisitForecastBatch"
       },
       "WeatherInfo": {
         "properties": {
