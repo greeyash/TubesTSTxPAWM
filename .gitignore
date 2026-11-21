@@ -16,3 +16,6 @@ venv/
 .DS_Store
 .vscode/
 .idea/
+
+# override lokal STB
+docker-compose.override.yml
