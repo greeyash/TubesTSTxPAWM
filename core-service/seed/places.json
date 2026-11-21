@@ -1,5 +1,5 @@
 {
- "_catatan": "Koordinat, jam, dan atribut adalah perkiraan [Menebak], verifikasi sebelum dipakai serius. closed_days: 0=Senin..6=Minggu. halal=false berarti ada menu/tenant non-halal. food_type/price_level/signature_menu hanya untuk kuliner. price_level: 1 <25rb, 2 25-50rb, 3 50-100rb, 4 >100rb per orang. parking.vehicle: mobil = muat mobil & motor, motor = hanya motor.",
+ "_catatan": "Koordinat, jam, dan atribut adalah perkiraan [Menebak], verifikasi sebelum dipakai serius. closed_days: 0=Senin..6=Minggu. halal=false berarti ada menu/tenant non-halal. food_type/price_level/signature_menu hanya untuk kuliner. price_level: 1 <25rb, 2 25-50rb, 3 50-100rb, 4 >100rb per orang. parking.vehicle: mobil = muat mobil & motor, motor = hanya motor. photo: foto dari Wikimedia Commons (lisensi bebas), lengkap dengan credit, license, dan source untuk atribusi; diambil dengan scripts/fetch_photos.py.",
  "places": [
   {
    "slug": "farmhouse-susu-lembang",
@@ -77,7 +77,14 @@
    "corridor_slug": "setiabudi-lembang",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/96/Floating_Market_Lembang_%2827031698372%29.jpg/960px-Floating_Market_Lembang_%2827031698372%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "BxHxTxCx (using album)",
+    "license": "CC BY-SA 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Floating_Market_Lembang_(27031698372).jpg",
+    "wiki": "Commons: Floating Market Lembang (27031698372).jpg"
+   }
   },
   {
    "slug": "orchid-forest-cikole",
@@ -116,7 +123,14 @@
    "corridor_slug": "setiabudi-lembang",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Taman_Orchid_Forest%2C_Cikole%2C_Lembang_Bandung.jpg/960px-Taman_Orchid_Forest%2C_Cikole%2C_Lembang_Bandung.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "OsamaAbdillah",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Taman_Orchid_Forest,_Cikole,_Lembang_Bandung.jpg",
+    "wiki": "Commons: Taman Orchid Forest, Cikole, Lembang Bandung.jpg"
+   }
   },
   {
    "slug": "tebing-keraton",
@@ -155,7 +169,14 @@
    "corridor_slug": "dago-dago-pakar",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b0/Tebing_Keraton_07.jpg/960px-Tebing_Keraton_07.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Cep Budhi Darma",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Tebing_Keraton_07.jpg",
+    "wiki": "Commons: Tebing Keraton 07.jpg"
+   }
   },
   {
    "slug": "tahura-djuanda",
@@ -194,7 +215,14 @@
    "corridor_slug": "dago-dago-pakar",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Jembatan_gantung_di_Taman_Hutan_Raya_Ir._H._Djuanda.jpg/960px-Jembatan_gantung_di_Taman_Hutan_Raya_Ir._H._Djuanda.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Imociro",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Jembatan_gantung_di_Taman_Hutan_Raya_Ir._H._Djuanda.jpg",
+    "wiki": "Commons: Jembatan gantung di Taman Hutan Raya Ir. H. Djuanda.jpg"
+   }
   },
   {
    "slug": "babakan-siliwangi",
@@ -233,7 +261,14 @@
    "corridor_slug": null,
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f8/FWBabakanSiliwangi.jpg/960px-FWBabakanSiliwangi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Naufal Farras",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:FWBabakanSiliwangi.jpg",
+    "wiki": "Babakan Siliwangi"
+   }
   },
   {
    "slug": "kawah-putih",
@@ -272,7 +307,14 @@
    "corridor_slug": "soreang-ciwidey",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Kawah_Putih_Lake_from_the_viewing_platform%2C_Bandung_Regency%2C_2014-08-21.jpg/960px-Kawah_Putih_Lake_from_the_viewing_platform%2C_Bandung_Regency%2C_2014-08-21.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Crisco 1492",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kawah_Putih_Lake_from_the_viewing_platform,_Bandung_Regency,_2014-08-21.jpg",
+    "wiki": "Kawah Putih"
+   }
   },
   {
    "slug": "situ-patenggang",
@@ -311,7 +353,14 @@
    "corridor_slug": "soreang-ciwidey",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fd/Danau_Situ_Patenggang%2C_Ciwidey%2C_Jawa_Barat.jpg/960px-Danau_Situ_Patenggang%2C_Ciwidey%2C_Jawa_Barat.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Ari Raharjo",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Danau_Situ_Patenggang,_Ciwidey,_Jawa_Barat.jpg",
+    "wiki": "Commons: Danau Situ Patenggang, Ciwidey, Jawa Barat.jpg"
+   }
   },
   {
    "slug": "kebun-teh-rancabali",
@@ -350,7 +399,14 @@
    "corridor_slug": "soreang-ciwidey",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Kebun_teh_rancabali.jpg/960px-Kebun_teh_rancabali.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Arief Rachman Muharam",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kebun_teh_rancabali.jpg",
+    "wiki": "Commons: Kebun teh rancabali.jpg"
+   }
   },
   {
    "slug": "museum-geologi",
@@ -391,7 +447,14 @@
    "corridor_slug": "dipati-ukur",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Bandung%2C_Museum_Geologi.jpg/960px-Bandung%2C_Museum_Geologi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "KemejaAmir8876",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Bandung,_Museum_Geologi.jpg",
+    "wiki": "Museum Geologi Bandung"
+   }
   },
   {
    "slug": "museum-kaa",
@@ -432,7 +495,14 @@
    "corridor_slug": "asia-afrika-braga",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Musium_KAA.jpg/960px-Musium_KAA.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Jagawana at Indonesian Wikipedia",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Musium_KAA.jpg",
+    "wiki": "Museum Konferensi Asia Afrika"
+   }
   },
   {
    "slug": "trans-studio-bandung",
@@ -471,7 +541,14 @@
    "corridor_slug": null,
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Transtudio_bandung_-_panoramio.jpg/960px-Transtudio_bandung_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "gunawan ione",
+    "license": "CC BY 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Transtudio_bandung_-_panoramio.jpg",
+    "wiki": "Commons: Transtudio bandung - panoramio.jpg"
+   }
   },
   {
    "slug": "museum-sri-baduga",
@@ -512,7 +589,14 @@
    "corridor_slug": null,
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d2/Sri_Baduga_Museum.JPG/960px-Sri_Baduga_Museum.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Rochelimit",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Sri_Baduga_Museum.JPG",
+    "wiki": "Museum Sri Baduga"
+   }
   },
   {
    "slug": "saung-angklung-udjo",
@@ -551,7 +635,14 @@
    "corridor_slug": null,
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e0/Saung_Angklung_Udjo.JPG/960px-Saung_Angklung_Udjo.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Midori",
+    "license": "CC BY 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Saung_Angklung_Udjo.JPG",
+    "wiki": "Saung Angklung Udjo"
+   }
   },
   {
    "slug": "museum-pos-indonesia",
@@ -590,7 +681,14 @@
    "corridor_slug": "dipati-ukur",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Kantor_Pusat_Pos_Indonesia.JPG/960px-Kantor_Pusat_Pos_Indonesia.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Rochelimit",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kantor_Pusat_Pos_Indonesia.JPG",
+    "wiki": "Museum Pos Indonesia"
+   }
   },
   {
    "slug": "gedung-sate",
@@ -629,7 +727,14 @@
    "corridor_slug": "dipati-ukur",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4c/Gedung_Sate_Oktober_2024_-_Rahmatdenas.jpg/960px-Gedung_Sate_Oktober_2024_-_Rahmatdenas.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Rahmatdenas",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Gedung_Sate_Oktober_2024_-_Rahmatdenas.jpg",
+    "wiki": "Gedung Sate"
+   }
   },
   {
    "slug": "alun-alun-bandung",
@@ -668,7 +773,14 @@
    "corridor_slug": "asia-afrika-braga",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9d/Masjid_Raya_Bandung_dan_Alun-alun_Bandung_%28potrait%29.jpg/960px-Masjid_Raya_Bandung_dan_Alun-alun_Bandung_%28potrait%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Rhmtdns",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Masjid_Raya_Bandung_dan_Alun-alun_Bandung_(potrait).jpg",
+    "wiki": "Commons: Masjid Raya Bandung dan Alun-alun Bandung (potrait).jpg"
+   }
   },
   {
    "slug": "jalan-braga",
@@ -707,7 +819,14 @@
    "corridor_slug": "asia-afrika-braga",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Jl_Braga_Street_Sign_in_Bandung.jpg/960px-Jl_Braga_Street_Sign_in_Bandung.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "J-lorentz",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Jl_Braga_Street_Sign_in_Bandung.jpg",
+    "wiki": "Jalan Braga"
+   }
   },
   {
    "slug": "observatorium-bosscha",
@@ -749,7 +868,14 @@
    "corridor_slug": "setiabudi-lembang",
    "food_type": null,
    "price_level": null,
-   "signature_menu": []
+   "signature_menu": [],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7f/Bosscha_001.JPG/960px-Bosscha_001.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Azmie Kasmy",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Bosscha_001.JPG",
+    "wiki": "Observatorium Bosscha"
+   }
   },
   {
    "slug": "lapangan-gasibu",
@@ -831,7 +957,14 @@
     "nasi rames",
     "lotek",
     "kupat tahu"
-   ]
+   ],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/Street_outside_Cihapit_market%2C_Bandung_%282%29.jpg/960px-Street_outside_Cihapit_market%2C_Bandung_%282%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "RasyaAbhirama13",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Street_outside_Cihapit_market,_Bandung_(2).jpg",
+    "wiki": "Commons: Street outside Cihapit market, Bandung (2).jpg"
+   }
   },
   {
    "slug": "kuliner-burangrang",
@@ -1024,7 +1157,14 @@
     "sate",
     "kopi",
     "aneka jajanan"
-   ]
+   ],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bd/Car-free_Braga_at_night_%284%29.jpg/960px-Car-free_Braga_at_night_%284%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "RasyaAbhirama13",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Car-free_Braga_at_night_(4).jpg",
+    "wiki": "Commons: Car-free Braga at night (4).jpg"
+   }
   },
   {
    "slug": "paskal-food-market",
@@ -1376,7 +1516,14 @@
     "stroberi segar",
     "kalua jeruk",
     "bandrek"
-   ]
+   ],
+   "photo": {
+    "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c7/Strawberry_farm%2C_Ciwidey%2C_Bandung%2C_2014-08-21.jpg/960px-Strawberry_farm%2C_Ciwidey%2C_Bandung%2C_2014-08-21.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
+    "credit": "Crisco 1492",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Strawberry_farm,_Ciwidey,_Bandung,_2014-08-21.jpg",
+    "wiki": "Commons: Strawberry farm, Ciwidey, Bandung, 2014-08-21.jpg"
+   }
   }
  ]
 }
