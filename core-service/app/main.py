@@ -28,23 +28,14 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 log = logging.getLogger("bebas")
 
 DESCRIPTION = """
-Core service kelompok **Bebas** (K02, tema Tourism).
+Perencana wisata dan kuliner di Bandung yang memperhitungkan prediksi macet dan cuaca.
+Dibuat oleh kelompok Bebas (K02, Tourism).
 
-**Autentikasi**
-* Pengguna aplikasi: `POST /api/auth/login` lalu kirim `Authorization: Bearer <token>`.
-  Peran: `wisatawan`, `pengelola`, `admin`.
-* Kelompok lain (server ke server): endpoint `/api/public/*` dengan header `X-API-Key: <kunci>`.
-* Data non-pribadi (katalog, keramaian, prediksi kepadatan, feed) juga terbuka tanpa kunci, dibatasi rate limit,
-  supaya aplikasi kelompok lain tidak perlu menyimpan API key di APK.
+**Cara mencoba**: login lewat `POST /api/auth/login`, salin `access_token`, klik **Authorize**, lalu tempel tokennya.
 
-**Format error**: `{"error": "KODE_ERROR", "message": "..."}` (400/401/403/404/409/422/429/503).
+**Untuk kelompok lain**: endpoint `/api/public/*` memakai header `X-API-Key`. Hubungi kami untuk minta kunci.
 
-**Bounded context** (nama di makalah → folder):
-Identitas & Akses → `identity`, Katalog Tempat → `places`, Keramaian & Antrean → `crowd`,
-Prediksi Kondisi Perjalanan → `prediction`, Perencanaan Perjalanan → `planning`.
-Notifikasi Perjalanan dikerjakan di Tugas 3; event-nya sudah diterbitkan di `/api/events`.
-
-Waktu memakai WIB (UTC+7).
+Semua waktu dalam WIB.
 """
 
 
@@ -97,7 +88,7 @@ def docs_redirect():
     return RedirectResponse("/api/docs")
 
 
-@app.get("/api", tags=["Health"], summary="Info service dan tautan dokumentasi")
+@app.get("/api", tags=["Health"], summary="Info service")
 def api_root():
     return {
         "service": "bebas-core",
@@ -129,13 +120,13 @@ def health():
     }
 
 
-@app.get("/api/feed", tags=["Events"], summary="Feed event publik (format bersama Jelajah Nusantara)")
+@app.get("/api/feed", tags=["Events"], summary="Feed perubahan data")
 def public_feed(since: int = Query(0, ge=0, description="seq terakhir yang sudah diproses"),
                 limit: int = Query(50, ge=1, le=200), db: sqlite3.Connection = Depends(get_db)):
     return feed(db, since, limit)
 
 
-@app.get("/api/events", tags=["Admin"], summary="Semua domain event (outbox), untuk konsumen internal")
+@app.get("/api/events", tags=["Admin"], summary="Semua event")
 def events(
     after: int = Query(0, ge=0),
     type: Optional[List[str]] = Query(None, description=f"filter: {', '.join(EVENT_TYPES)}"),
