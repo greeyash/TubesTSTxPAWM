@@ -70,7 +70,7 @@ export default function MakanScreen() {
                 const t = TRAFFIC[r.traffic_status];
                 return (
                   <View key={r.place_id} style={[s.card, shadow]}>
-                    <PlaceArt category="kuliner" height={86} style={{ width: 86 }} iconSize={30} />
+                    <PlaceArt category="kuliner" photo={r.photo?.url} height={86} style={{ width: 86 }} iconSize={30} />
                     <View style={{ flex: 1, gap: 4 }}>
                       <View style={s.rowBetween}>
                         <Text style={s.name} numberOfLines={1}>{r.name}</Text>

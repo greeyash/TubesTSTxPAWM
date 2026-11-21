@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Card, Chip, ErrorState, Loading, Pill, PlaceArt, QueueBadge, Sky } from '../../src/components/ui';
 import { useAuth } from '../../src/lib/auth';
@@ -59,12 +59,13 @@ export default function TempatScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: space(10) }}>
         <PlaceArt
           category={p.category}
+          photo={p.photo?.url}
           height={300 + insets.top}
           style={{ borderRadius: 0, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 }}
           iconSize={96}
           iconStyle={{ top: insets.top + 56, right: space(8), bottom: undefined }}
         >
-          <LinearGradient colors={['transparent', 'rgba(20,33,46,0.45)']} style={s.scrim} />
+          <LinearGradient colors={['rgba(20,33,46,0.25)', 'transparent', 'rgba(20,33,46,0.6)']} locations={[0, 0.35, 1]} style={s.scrim} />
           <View style={[s.heroBar, { paddingTop: insets.top + space(2) }]}>
             {back}
             <View style={[s.roundBtn, shadow]}>
@@ -89,6 +90,12 @@ export default function TempatScreen() {
             <Stat icon="car-outline" label="Parkir" value={`${PARKING[p.parking?.type] || '-'}${p.parking?.vehicle === 'motor' ? ' · motor' : ''}`} />
             <Stat icon="umbrella-outline" label="Hujan" value={p.rain_friendly ? 'Aman' : 'Kurang cocok'} />
           </View>
+
+          {p.photo ? (
+            <Text style={s.credit} onPress={() => p.photo.source && Linking.openURL(p.photo.source)}>
+              Foto: {p.photo.credit} · {p.photo.license} · Wikimedia Commons
+            </Text>
+          ) : null}
 
           {p.description ? <Text style={s.body}>{p.description}</Text> : null}
 
@@ -149,7 +156,7 @@ function Info({ label, value }) {
 }
 
 const s = StyleSheet.create({
-  scrim: { position: 'absolute', left: 0, right: 0, bottom: 0, height: '70%' },
+  scrim: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   heroBar: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: space(4) },
   roundBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   heroText: { position: 'absolute', left: space(5), right: space(5), bottom: space(16), gap: space(2) },
@@ -161,6 +168,7 @@ const s = StyleSheet.create({
   statLabel: { fontSize: 12, fontWeight: '700', marginTop: 4 },
   statValue: { fontSize: 12, color: colors.muted },
   body: { fontSize: 15, color: colors.text, lineHeight: 22 },
+  credit: { fontSize: 11, color: colors.muted, marginTop: -space(2) },
   section: { fontSize: 16, fontWeight: '700', color: colors.text },
   muted: { fontSize: 13, color: colors.muted },
   label: { fontSize: 13, fontWeight: '600', color: colors.text },

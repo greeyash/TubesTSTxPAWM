@@ -11,7 +11,7 @@ export default function PlaceCard({ place, onPress, selected }) {
       onPress={onPress}
       style={({ pressed }) => [s.row, shadow, selected && s.selected, pressed && { transform: [{ scale: 0.99 }] }]}
     >
-      <PlaceArt category={place.category} height={76} style={{ width: 76 }} iconSize={28} />
+      <PlaceArt category={place.category} photo={place.photo?.url} height={76} style={{ width: 76 }} iconSize={28} />
       <View style={s.body}>
         <Text style={s.name} numberOfLines={1}>{place.name}</Text>
         <Text style={s.sub} numberOfLines={1}>{CATEGORY_LABEL[place.category]} · {place.address || place.description}</Text>
@@ -36,7 +36,7 @@ export default function PlaceCard({ place, onPress, selected }) {
 export function PlaceTile({ place, crowd, onPress }) {
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [s.tile, pressed && { transform: [{ scale: 0.98 }] }]}>
-      <PlaceArt category={place.category} height={200} style={{ width: 160 }} iconSize={58} iconStyle={{ right: undefined, bottom: undefined, top: 62, left: 51 }}>
+      <PlaceArt category={place.category} photo={place.photo?.url} height={200} style={{ width: 160 }} iconSize={58} iconStyle={{ right: undefined, bottom: undefined, top: 62, left: 51 }}>
         <View style={s.tileTop}>{crowd ? <QueueBadge status={crowd.queue_status} solid /> : null}</View>
         <View style={s.tileBottom}>
           <Text style={s.tileSub} numberOfLines={1}>{CATEGORY_LABEL[place.category]}</Text>
@@ -71,7 +71,7 @@ const s = StyleSheet.create({
   checkOn: { backgroundColor: colors.blue, borderColor: colors.blue },
   tile: { marginRight: space(3) },
   tileTop: { padding: space(2.5) },
-  tileBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: space(3), backgroundColor: 'rgba(20,33,46,0.22)' },
+  tileBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: space(3), backgroundColor: 'rgba(20,33,46,0.38)' },
   tileSub: { fontSize: 11, color: '#fff', opacity: 0.9 },
   tileName: { fontSize: 15, fontWeight: '700', color: '#fff' },
 });

@@ -51,6 +51,8 @@ export default function ProfilScreen() {
           <View style={s.sep} />
           <Row icon="information-circle-outline" title="Tentang" subtitle="Xplore Bandung · kelompok Bebas (K02)" />
           <View style={s.sep} />
+          <Row icon="image-outline" title="Foto tempat" subtitle="Wikimedia Commons (CC BY / CC BY-SA), nama fotografer di halaman detail" />
+          <View style={s.sep} />
           <Row icon="log-out-outline" title="Keluar" danger onPress={signOut} />
         </Card>
       </ScrollView>

@@ -104,7 +104,7 @@ export default function JadwalScreen() {
                   <Text style={s.travelText}>{Math.round(st.travel_minutes)} menit · keyakinan {st.travel_confidence}</Text>
                 </View>
                 <View style={[s.stopCard, shadow]}>
-                  <PlaceArt category={st.category} height={56} style={{ width: 56, borderRadius: 16 }} iconSize={22} />
+                  <PlaceArt category={st.category} photo={st.photo_url} height={56} style={{ width: 56, borderRadius: 16 }} iconSize={22} />
                   <View style={{ flex: 1, gap: 4 }}>
                     {KIND[st.kind] ? <Text style={s.kind}>{KIND[st.kind]}</Text> : null}
                     <Text style={s.name} numberOfLines={2}>{st.place_name}</Text>

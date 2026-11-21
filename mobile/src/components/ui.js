@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CATEGORY_ART, colors, radius, shadow, space } from '../lib/theme';
 
@@ -113,14 +114,22 @@ export function SectionHeader({ title, subtitle, action, onAction }) {
   );
 }
 
-// Ilustrasi kategori: gradasi + ikon (pengganti foto tempat)
-export function PlaceArt({ category, height = 120, style, children, iconSize, iconStyle }) {
+// Foto tempat (Wikimedia Commons). Kalau tidak ada / gagal dimuat, tampil ilustrasi gradasi + ikon kategori.
+export function PlaceArt({ category, height = 120, style, children, iconSize, iconStyle, photo }) {
+  const [failed, setFailed] = useState(false);
   const art = CATEGORY_ART[category] || CATEGORY_ART.outdoor;
+  const showPhoto = !!photo && !failed;
   return (
     <LinearGradient colors={art.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[{ height, borderRadius: radius, overflow: 'hidden' }, style]}>
-      <View style={[styles.artBlob, { top: -height * 0.3, right: -height * 0.2, width: height, height }]} />
-      <View style={[styles.artBlob, { bottom: -height * 0.45, left: -height * 0.25, width: height * 1.1, height: height * 1.1 }]} />
-      <Ionicons name={art.icon} size={iconSize || Math.round(height * 0.38)} color="rgba(255,255,255,0.9)" style={[styles.artIcon, iconStyle]} />
+      {showPhoto ? (
+        <Image source={{ uri: photo }} style={StyleSheet.absoluteFill} resizeMode="cover" onError={() => setFailed(true)} />
+      ) : (
+        <>
+          <View style={[styles.artBlob, { top: -height * 0.3, right: -height * 0.2, width: height, height }]} />
+          <View style={[styles.artBlob, { bottom: -height * 0.45, left: -height * 0.25, width: height * 1.1, height: height * 1.1 }]} />
+          <Ionicons name={art.icon} size={iconSize || Math.round(height * 0.38)} color="rgba(255,255,255,0.9)" style={[styles.artIcon, iconStyle]} />
+        </>
+      )}
       {children}
     </LinearGradient>
   );
