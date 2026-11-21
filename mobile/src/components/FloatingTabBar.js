@@ -1,34 +1,46 @@
 import { Ionicons } from '@expo/vector-icons';
+import { usePathname, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, shadow } from '../lib/theme';
 
-const ICONS = { index: 'home', rencana: 'calendar', makan: 'restaurant', profil: 'person' };
+// Daftar tab ditulis langsung (bukan dari props navigator) supaya perilakunya
+// sama di iOS, Android, dan web.
+const TABS = [
+  { href: '/', title: 'Jelajah', icon: 'home' },
+  { href: '/rencana', title: 'Rencana', icon: 'calendar' },
+  { href: '/makan', title: 'Makan sekarang', icon: 'restaurant' },
+  { href: '/profil', title: 'Profil', icon: 'person' },
+];
+
+function isActive(pathname, href) {
+  if (href === '/') return pathname === '/' || pathname === '';
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 // Tab bar melayang berbentuk kapsul di bawah layar
-export default function FloatingTabBar({ state, descriptors, navigation }) {
+export default function FloatingTabBar() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const pathname = usePathname() || '/';
+
   return (
     <View pointerEvents="box-none" style={[s.wrap, { bottom: Math.max(insets.bottom, 12) + 8 }]}>
       <View style={[s.bar, shadow]}>
-        {state.routes.map((route, i) => {
-          const focused = state.index === i;
-          const { options } = descriptors[route.key];
-          const icon = ICONS[route.name] || 'ellipse';
-          const onPress = () => {
-            const e = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-            if (!focused && !e.defaultPrevented) navigation.navigate(route.name);
-          };
+        {TABS.map((tab) => {
+          const focused = isActive(pathname, tab.href);
           return (
             <Pressable
-              key={route.key}
+              key={tab.href}
               accessibilityRole="tab"
-              accessibilityLabel={options.title}
+              accessibilityLabel={tab.title}
               accessibilityState={{ selected: focused }}
-              onPress={onPress}
+              onPress={() => {
+                if (!focused) router.navigate(tab.href);
+              }}
               style={[s.item, focused && s.itemActive]}
             >
-              <Ionicons name={focused ? icon : `${icon}-outline`} size={22} color={focused ? '#fff' : colors.text} />
+              <Ionicons name={focused ? tab.icon : `${tab.icon}-outline`} size={22} color={focused ? '#fff' : colors.text} />
             </Pressable>
           );
         })}
