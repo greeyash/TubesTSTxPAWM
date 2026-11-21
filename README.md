@@ -266,4 +266,5 @@ Contoh potongan jadwal:
 
 ## Data seed
 - `seed/corridors.json`: 6 koridor (Setiabudi-Lembang, Dago-Dago Pakar, Soreang-Ciwidey, Asia Afrika-Braga, Burangrang-Cihapit, Dipati Ukur) dan profil jalan kota. Faktor jam masih perkiraan.
+- Foto tempat: 21 tempat punya foto dari Wikimedia Commons (lisensi CC BY / CC BY-SA), lengkap dengan nama fotografer, lisensi, dan tautan sumber di field `photo`. Foto dipilih dan dicek manual lewat `core-service/scripts/fetch_photos.py`. Tempat tanpa foto bebas yang sesuai tampil dengan ilustrasi di aplikasi. Database lama otomatis mendapat kolom `photo` saat service start.
 - `seed/places.json`: 33 tempat, terdiri dari 9 outdoor, 6 indoor, 5 landmark, dan 13 kuliner (makanan berat, jajanan, kafe, oleh-oleh, sentra kuliner) di koridor Lembang, Dago Pakar, Ciwidey, dan pusat kota. Semua nilai masih perkiraan dan perlu diverifikasi.

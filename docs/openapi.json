@@ -4239,6 +4239,17 @@
             "type": "boolean",
             "title": "Open Late"
           },
+          "photo": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo"
+          },
           "confidence": {
             "type": "string",
             "enum": [
@@ -4679,6 +4690,57 @@
         "type": "object",
         "title": "PeakHours"
       },
+      "Photo": {
+        "properties": {
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "gambar (lebar ~900 px) dari Wikimedia Commons"
+          },
+          "credit": {
+            "type": "string",
+            "title": "Credit",
+            "description": "nama fotografer, wajib ditampilkan"
+          },
+          "license": {
+            "type": "string",
+            "title": "License",
+            "examples": [
+              "CC BY-SA 4.0"
+            ]
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source",
+            "description": "halaman file di Wikimedia Commons"
+          },
+          "wiki": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wiki"
+          }
+        },
+        "type": "object",
+        "required": [
+          "url",
+          "credit",
+          "license"
+        ],
+        "title": "Photo"
+      },
       "PlaceCreate": {
         "properties": {
           "name": {
@@ -5066,6 +5128,17 @@
             "type": "boolean",
             "title": "Open Late",
             "description": "buka sampai >= 21.00"
+          },
+          "photo": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Photo"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "foto tempat (bisa kosong)"
           },
           "zone": {
             "type": "string",
@@ -6166,6 +6239,17 @@
               }
             ],
             "title": "Rain Mm"
+          },
+          "photo_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Photo Url"
           },
           "warnings": {
             "items": {
