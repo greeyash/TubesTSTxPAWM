@@ -165,3 +165,26 @@ def test_public_new_endpoints(client, admin):
     assert client.get("/api/public/eat-now", params={"lat": -6.9, "lon": 107.62}, headers=h).status_code == 200
     ev = client.get("/api/public/feed", headers=h).json()
     assert all(e["type"] != "RencanaBerubah" for e in ev["events"])
+
+
+def test_place_photos(client):
+    places = client.get("/api/places").json()
+    with_photo = [p for p in places if p["photo"]]
+    assert len(with_photo) >= 15
+    ph = next(p for p in places if p["slug"] == "gedung-sate")["photo"]
+    assert ph["url"].startswith("https://") and ph["credit"] and ph["license"].startswith("CC")
+
+
+def test_photo_migration_on_old_database(tmp_path, monkeypatch):
+    import sqlite3
+    from app import db
+    from app.config import settings
+    path = tmp_path / "lama.db"
+    conn = sqlite3.connect(path)
+    conn.execute("CREATE TABLE places (id INTEGER PRIMARY KEY, slug TEXT)")  # skema lama tanpa kolom photo
+    conn.execute("INSERT INTO places(slug) VALUES ('gedung-sate'), ('tempat-lain')")
+    conn.commit()
+    db._migrate(conn)
+    rows = dict(conn.execute("SELECT slug, photo FROM places").fetchall())
+    assert rows["gedung-sate"] and '"credit"' in rows["gedung-sate"]
+    assert rows["tempat-lain"] is None
