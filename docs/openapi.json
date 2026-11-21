@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Bebas Core Service",
-    "description": "\nCore service kelompok **Bebas** (K02, tema Tourism).\n\n**Autentikasi**\n* Pengguna aplikasi: `POST /api/auth/login` lalu kirim `Authorization: Bearer <token>`.\n  Peran: `wisatawan`, `pengelola`, `admin`.\n* Kelompok lain (server ke server): endpoint `/api/public/*` dengan header `X-API-Key: <kunci>`.\n* Data non-pribadi (katalog, keramaian, prediksi kepadatan, feed) juga terbuka tanpa kunci, dibatasi rate limit,\n  supaya aplikasi kelompok lain tidak perlu menyimpan API key di APK.\n\n**Format error**: `{\"error\": \"KODE_ERROR\", \"message\": \"...\"}` (400/401/403/404/409/422/429/503).\n\n**Bounded context** (nama di makalah → folder):\nIdentitas & Akses → `identity`, Katalog Tempat → `places`, Keramaian & Antrean → `crowd`,\nPrediksi Kondisi Perjalanan → `prediction`, Perencanaan Perjalanan → `planning`.\nNotifikasi Perjalanan dikerjakan di Tugas 3; event-nya sudah diterbitkan di `/api/events`.\n\nWaktu memakai WIB (UTC+7).\n",
+    "description": "\nPerencana wisata dan kuliner di Bandung yang memperhitungkan prediksi macet dan cuaca.\nDibuat oleh kelompok Bebas (K02, Tourism).\n\n**Cara mencoba**: login lewat `POST /api/auth/login`, salin `access_token`, klik **Authorize**, lalu tempel tokennya.\n\n**Untuk kelompok lain**: endpoint `/api/public/*` memakai header `X-API-Key`. Hubungi kami untuk minta kunci.\n\nSemua waktu dalam WIB.\n",
     "version": "0.1.0"
   },
   "paths": {
@@ -11,7 +11,7 @@
         "tags": [
           "Health"
         ],
-        "summary": "Info service dan tautan dokumentasi",
+        "summary": "Info service",
         "operationId": "api_root_api_get",
         "responses": {
           "200": {
@@ -49,7 +49,7 @@
         "tags": [
           "Events"
         ],
-        "summary": "Feed event publik (format bersama Jelajah Nusantara)",
+        "summary": "Feed perubahan data",
         "operationId": "public_feed_api_feed_get",
         "parameters": [
           {
@@ -105,7 +105,7 @@
         "tags": [
           "Admin"
         ],
-        "summary": "Semua domain event (outbox), untuk konsumen internal",
+        "summary": "Semua event",
         "operationId": "events_api_events_get",
         "security": [
           {
@@ -185,7 +185,7 @@
         "tags": [
           "Identity"
         ],
-        "summary": "Daftar akun wisatawan atau pengelola",
+        "summary": "Daftar akun",
         "operationId": "register_api_auth_register_post",
         "requestBody": {
           "content": {
@@ -383,7 +383,7 @@
           "Identity",
           "Admin"
         ],
-        "summary": "Verifikasi akun pengelola / UMKM",
+        "summary": "Verifikasi akun pengelola",
         "operationId": "verify_user_api_admin_users__user_id__verify_patch",
         "security": [
           {
@@ -470,7 +470,7 @@
           "Identity",
           "Admin"
         ],
-        "summary": "Buat API key untuk kelompok lain (kunci hanya tampil sekali)",
+        "summary": "Buat API key",
         "operationId": "create_key_api_admin_api_keys_post",
         "requestBody": {
           "content": {
@@ -557,7 +557,7 @@
         "tags": [
           "Places"
         ],
-        "summary": "Daftar tempat (bisa difilter)",
+        "summary": "Daftar tempat",
         "operationId": "list_places_api_places_get",
         "parameters": [
           {
@@ -762,7 +762,7 @@
         "tags": [
           "Places"
         ],
-        "summary": "Tambah tempat (pengelola/admin)",
+        "summary": "Tambah tempat",
         "operationId": "create_place_api_places_post",
         "security": [
           {
@@ -808,7 +808,7 @@
         "tags": [
           "Places"
         ],
-        "summary": "Tempat yang saya kelola (pengelola)",
+        "summary": "Tempat yang saya kelola",
         "operationId": "my_places_api_places_mine_get",
         "responses": {
           "200": {
@@ -878,7 +878,7 @@
         "tags": [
           "Places"
         ],
-        "summary": "Ubah tempat (pengelola tempat itu / admin)",
+        "summary": "Ubah tempat",
         "operationId": "update_place_api_places__place_id__patch",
         "security": [
           {
@@ -935,7 +935,7 @@
         "tags": [
           "Crowd"
         ],
-        "summary": "Kirim laporan keramaian (divalidasi otomatis)",
+        "summary": "Kirim laporan keramaian",
         "operationId": "report_api_places__place_id__crowd_reports_post",
         "security": [
           {
@@ -990,7 +990,7 @@
         "tags": [
           "Crowd"
         ],
-        "summary": "Riwayat laporan (pengelola tempat / admin)",
+        "summary": "Riwayat laporan keramaian",
         "operationId": "list_reports_api_places__place_id__crowd_reports_get",
         "security": [
           {
@@ -1095,7 +1095,7 @@
         "tags": [
           "Crowd"
         ],
-        "summary": "Validasi/tolak laporan secara manual",
+        "summary": "Setujui atau tolak laporan",
         "operationId": "moderate_api_crowd_reports__report_id__patch",
         "security": [
           {
@@ -1152,7 +1152,7 @@
         "tags": [
           "Crowd"
         ],
-        "summary": "Status keramaian banyak tempat sekaligus",
+        "summary": "Status keramaian beberapa tempat",
         "operationId": "crowd_many_api_crowd_get",
         "parameters": [
           {
@@ -1196,7 +1196,7 @@
         "tags": [
           "Prediction"
         ],
-        "summary": "Daftar koridor dan tabel faktor jam",
+        "summary": "Daftar koridor",
         "operationId": "list_corridors_api_corridors_get",
         "responses": {
           "200": {
@@ -1221,7 +1221,7 @@
         "tags": [
           "Prediction"
         ],
-        "summary": "Faktor jam satu koridor untuk tanggal tertentu",
+        "summary": "Faktor jam koridor",
         "operationId": "get_corridor_factors_api_corridors__slug__factors_get",
         "parameters": [
           {
@@ -1454,7 +1454,7 @@
         "tags": [
           "Prediction"
         ],
-        "summary": "Jendela berangkat terbaik dalam rentang jam",
+        "summary": "Jam berangkat terbaik",
         "operationId": "departure_window_api_predict_departure_window_get",
         "security": [
           {
@@ -1706,7 +1706,7 @@
         "tags": [
           "Planning"
         ],
-        "summary": "Buat rencana satu hari (opsional sisipkan makan siang / jajan sore)",
+        "summary": "Buat rencana satu hari",
         "operationId": "create_plan_api_plans_post",
         "requestBody": {
           "content": {
@@ -1752,7 +1752,7 @@
         "tags": [
           "Planning"
         ],
-        "summary": "Lihat rencana: jadwal, peringatan, jam berangkat terbaik, dan alternatif",
+        "summary": "Detail rencana dan jadwal",
         "operationId": "get_plan_api_plans__plan_id__get",
         "security": [
           {
@@ -1797,7 +1797,7 @@
         "tags": [
           "Planning"
         ],
-        "summary": "Ubah rencana (judul, tanggal, jam mulai, asal, daftar tempat, opsi slot makan)",
+        "summary": "Ubah rencana",
         "operationId": "update_plan_api_plans__plan_id__patch",
         "security": [
           {
@@ -1892,7 +1892,7 @@
         "tags": [
           "Planning"
         ],
-        "summary": "Susun ulang urutan kunjungan (opsional ganti tempat yang kehujanan/antre panjang)",
+        "summary": "Susun ulang urutan kunjungan",
         "operationId": "reorder_api_plans__plan_id__reorder_post",
         "security": [
           {
@@ -2141,7 +2141,7 @@
         "tags": [
           "Planning"
         ],
-        "summary": "Prediksi kepadatan kunjungan untuk banyak tempat sekaligus",
+        "summary": "Prediksi kepadatan beberapa tempat",
         "operationId": "visit_forecast_many_api_visit_forecast_get",
         "parameters": [
           {
@@ -2202,7 +2202,7 @@
         "tags": [
           "Planning"
         ],
-        "summary": "Prediksi kepadatan kunjungan per jam (dari itinerary tersimpan + jam ramai)",
+        "summary": "Prediksi kepadatan per jam",
         "operationId": "visit_forecast_api_places__place_id__visit_forecast_get",
         "parameters": [
           {
@@ -2263,7 +2263,7 @@
         "tags": [
           "Planning"
         ],
-        "summary": "Dashboard pengelola: perkiraan kedatangan dan ringkasan laporan hari ini",
+        "summary": "Dashboard pengelola",
         "operationId": "dashboard_api_places__place_id__dashboard_get",
         "security": [
           {
@@ -2327,7 +2327,7 @@
         "tags": [
           "Public (X-API-Key)"
         ],
-        "summary": "Daftar tempat (paginasi ?page&limit)",
+        "summary": "Daftar tempat",
         "operationId": "list_places_api_public_places_get",
         "security": [
           {
@@ -3043,7 +3043,7 @@
         "tags": [
           "Public (X-API-Key)"
         ],
-        "summary": "Status keramaian banyak tempat (?ids=1,2,3)",
+        "summary": "Status keramaian beberapa tempat",
         "operationId": "crowd_many_api_public_crowd_get",
         "security": [
           {
@@ -3092,7 +3092,7 @@
         "tags": [
           "Public (X-API-Key)"
         ],
-        "summary": "Prediksi kepadatan banyak tempat (?ids=1,2,3&date=)",
+        "summary": "Prediksi kepadatan beberapa tempat",
         "operationId": "visit_forecast_many_api_public_visit_forecast_get",
         "security": [
           {
@@ -3158,7 +3158,7 @@
         "tags": [
           "Public (X-API-Key)"
         ],
-        "summary": "Prediksi kepadatan kunjungan per jam (Open Host Service)",
+        "summary": "Prediksi kepadatan per jam",
         "operationId": "visit_forecast_api_public_places__place_id__visit_forecast_get",
         "security": [
           {
@@ -3222,7 +3222,7 @@
         "tags": [
           "Public (X-API-Key)"
         ],
-        "summary": "Tempat makan terdekat yang tidak macet dan tidak antre",
+        "summary": "Tempat makan terdekat",
         "operationId": "eat_now_api_public_eat_now_get",
         "security": [
           {
@@ -3402,7 +3402,7 @@
         "tags": [
           "Public (X-API-Key)"
         ],
-        "summary": "Feed event (format bersama): TempatDiperbarui, StatusAntreanBerubah",
+        "summary": "Feed perubahan data",
         "operationId": "events_feed_api_public_feed_get",
         "security": [
           {
